@@ -1,0 +1,1602 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BoxCostCal - Costing Sheet</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f1ea;
+      --panel: #fffdf8;
+      --panel-strong: #ffffff;
+      --ink: #18201f;
+      --muted: #69706f;
+      --line: #d9d4c8;
+      --line-strong: #bcb5a7;
+      --green: #176b5b;
+      --green-dark: #0f4a3f;
+      --amber: #b95f18;
+      --blue: #2559a7;
+      --shadow: 0 18px 45px rgba(24, 32, 31, 0.08);
+      --radius: 10px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(180deg, rgba(255, 253, 248, 0.92), rgba(244, 241, 234, 0.96)),
+        repeating-linear-gradient(90deg, rgba(24, 32, 31, 0.035) 0 1px, transparent 1px 42px);
+      color: var(--ink);
+    }
+    .app {
+      width: min(960px, calc(100vw - 28px));
+      margin: 0 auto;
+      padding: 24px 0 40px;
+    }
+    header.top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    header.top h1 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+    header.top .sub {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .stepper {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .step-chip {
+      padding: 6px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .step-chip.active {
+      background: var(--green);
+      color: #fff;
+      border-color: var(--green);
+    }
+    .step-chip.pending {
+      opacity: 0.55;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+    .card h2 {
+      margin: 0 0 4px;
+      font-size: 17px;
+    }
+    .card .hint {
+      color: var(--muted);
+      font-size: 12.5px;
+      margin: 0 0 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px 18px;
+    }
+    @media (max-width: 620px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .section-label {
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--green-dark);
+      margin: 4px 0 10px;
+      font-weight: 600;
+    }
+    .section-label + .grid { margin-bottom: 14px; }
+    .section-label.spaced { margin-top: 16px; }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.2px;
+      text-transform: uppercase;
+    }
+    .field .input-wrap {
+      display: flex;
+      align-items: stretch;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      background: var(--panel-strong);
+      overflow: hidden;
+    }
+    .field input,
+    .field select {
+      flex: 1;
+      border: 0;
+      padding: 10px 12px;
+      font-size: 15px;
+      background: transparent;
+      outline: none;
+      width: 100%;
+      min-width: 0;
+    }
+    .field select { appearance: auto; }
+    .field .suffix {
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      color: var(--muted);
+      background: rgba(24, 32, 31, 0.04);
+      font-size: 12.5px;
+      border-left: 1px solid var(--line);
+    }
+    .field input:focus { background: #fff; }
+    .field .input-wrap:focus-within {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(23, 107, 91, 0.12);
+    }
+
+    .results {
+      margin-top: 22px;
+      border-top: 1px dashed var(--line-strong);
+      padding-top: 18px;
+    }
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    @media (max-width: 760px) { .results-grid { grid-template-columns: repeat(2, 1fr); } }
+    .result {
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+    .result .k {
+      font-size: 11.5px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .result .v {
+      margin-top: 6px;
+      font-size: 19px;
+      font-weight: 600;
+      color: var(--green-dark);
+    }
+    .result .unit {
+      font-size: 12px;
+      color: var(--muted);
+      margin-left: 4px;
+      font-weight: 500;
+    }
+    .result.bad .v { color: var(--muted); font-weight: 400; font-size: 15px; }
+
+    .proc {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 253, 248, 0.55);
+      padding: 14px 16px;
+      margin-top: 14px;
+    }
+    .proc-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .proc-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--green-dark);
+    }
+    .proc-formula {
+      color: var(--muted);
+      font-size: 11.5px;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    }
+    .proc-foot {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--line);
+      display: flex;
+      gap: 18px;
+      flex-wrap: wrap;
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+    .proc-foot b {
+      color: var(--green-dark);
+      font-weight: 600;
+      margin-left: 4px;
+    }
+    .card + .card { margin-top: 22px; }
+
+    .module-bar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding: 8px 12px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      font-size: 13px;
+    }
+    .module-bar .grp { display: flex; align-items: center; gap: 6px; }
+    .module-bar label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: var(--muted);
+      margin-right: 2px;
+    }
+    .module-bar input, .module-bar select {
+      padding: 6px 8px;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      background: var(--panel-strong);
+      font-size: 13px;
+      min-width: 150px;
+      max-width: 220px;
+    }
+    .module-bar button {
+      padding: 6px 12px;
+      border: 1px solid var(--green);
+      background: var(--green);
+      color: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .module-bar button:hover { background: var(--green-dark); border-color: var(--green-dark); }
+    .module-bar button.ghost {
+      background: transparent;
+      color: var(--muted);
+      border-color: var(--line-strong);
+    }
+    .module-bar button.ghost:hover { color: var(--ink); border-color: var(--muted); }
+    .module-bar .spacer { flex: 1; }
+
+    .module-status {
+      font-size: 12.5px;
+      color: var(--green-dark);
+      margin: -8px 0 14px 14px;
+      min-height: 16px;
+      transition: opacity 0.4s;
+    }
+    .module-status.fading { opacity: 0; }
+    .module-status.err { color: var(--red); }
+
+    .inherited {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      padding: 10px 14px;
+      border: 1px dashed var(--line-strong);
+      background: rgba(23, 107, 91, 0.05);
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .inherited b {
+      color: var(--green-dark);
+      font-weight: 600;
+    }
+    .inherited .calc {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 11.5px;
+    }
+
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="top">
+      <h1>Costing Sheet</h1>
+      <div class="sub">Step-wise builder</div>
+    </header>
+
+    <div class="module-bar">
+      <div class="grp">
+        <label for="modSaveName">Save as</label>
+        <input id="modSaveName" type="text" placeholder="module name">
+        <button id="modSaveBtn">Save</button>
+      </div>
+      <div class="grp">
+        <label for="modLoad">Load</label>
+        <select id="modLoad">
+          <option value="">— select module —</option>
+        </select>
+        <button id="modLoadBtn">Load</button>
+        <button id="modDeleteBtn" class="ghost">Delete</button>
+      </div>
+      <div class="spacer"></div>
+      <button id="modResetBtn" class="ghost">Reset all</button>
+    </div>
+    <div id="modStatus" class="module-status"></div>
+
+    <div class="stepper">
+      <div class="step-chip active">1. Paper</div>
+      <div class="step-chip active">2. Extra Processes</div>
+      <div class="step-chip active">3. Corrugation</div>
+      <div class="step-chip active">4. Finishing</div>
+    </div>
+
+    <section class="card" id="paper-card">
+      <h2>Paper Costing</h2>
+      <p class="hint">Enter paper details and costing factors. Weight uses L×W×GSM÷1540. Results round to 2 decimals.</p>
+
+      <div class="section-label">Paper</div>
+      <div class="grid">
+        <div class="field">
+          <label for="length">Length</label>
+          <div class="input-wrap">
+            <input id="length" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 36">
+            <span class="suffix">inches</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="width">Width</label>
+          <div class="input-wrap">
+            <input id="width" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 24">
+            <span class="suffix">inches</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="gsm">Grammage</label>
+          <div class="input-wrap">
+            <input id="gsm" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 180">
+            <span class="suffix">gsm</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="pack">Pack size (mode of packing)</label>
+          <div class="input-wrap">
+            <input id="pack" type="number" inputmode="numeric" step="1" min="1" placeholder="e.g. 100">
+            <span class="suffix">sheets/pack</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="packets">Number of packets</label>
+          <div class="input-wrap">
+            <input id="packets" type="number" inputmode="numeric" step="1" min="1" placeholder="e.g. 50">
+            <span class="suffix">packets</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="cuts">Cuts per sheet</label>
+          <div class="input-wrap">
+            <input id="cuts" type="number" inputmode="numeric" step="1" min="1" placeholder="e.g. 1">
+            <span class="suffix">pcs/sheet</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="wastage">Wastage</label>
+          <div class="input-wrap">
+            <input id="wastage" type="number" inputmode="numeric" step="1" min="0" placeholder="e.g. 20">
+            <span class="suffix">sheets</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="wInc">Weight increase</label>
+          <div class="input-wrap">
+            <input id="wInc" type="number" inputmode="decimal" step="0.1" placeholder="e.g. 5">
+            <span class="suffix">%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label spaced">Costing</div>
+      <div class="grid">
+        <div class="field">
+          <label for="rate">Paper rate</label>
+          <div class="input-wrap">
+            <input id="rate" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 65">
+            <span class="suffix">₹ / kg</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="cInc">Cost increase</label>
+          <div class="input-wrap">
+            <input id="cInc" type="number" inputmode="decimal" step="0.1" placeholder="e.g. 10">
+            <span class="suffix">%</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="tax">Tax</label>
+          <div class="input-wrap">
+            <input id="tax" type="number" inputmode="decimal" step="0.1" placeholder="e.g. 12">
+            <span class="suffix">%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="results">
+        <div class="results-grid">
+          <div class="result" id="r-wsheet">
+            <div class="k">Weight / sheet <span class="unit">(with increase)</span></div>
+            <div class="v">—</div>
+          </div>
+          <div class="result" id="r-wpack">
+            <div class="k">Weight / pack</div>
+            <div class="v">—</div>
+          </div>
+          <div class="result" id="r-cpack">
+            <div class="k">Cost / pack <span class="unit">(incl. markup + tax)</span></div>
+            <div class="v">—</div>
+          </div>
+          <div class="result" id="r-csheet">
+            <div class="k">Cost / sheet <span class="unit">(final)</span></div>
+            <div class="v">—</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="extras-card">
+      <h2>Extra Processes</h2>
+      <p class="hint">Each process shows ₹/sheet, ₹/pack and ₹ total. Total sheets carry over from Step 1 (packets × pack × cuts).</p>
+
+      <div class="inherited" id="jobInherit">
+        <span>Effective sheets from Step 1: <b id="jobTotal">—</b></span>
+        <span class="calc" id="jobCalc">—</span>
+      </div>
+
+      <div class="proc">
+        <div class="proc-head">
+          <span class="proc-name">1. Printing</span>
+          <span class="proc-formula">cost/lot ÷ total sheets → /sheet</span>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <label for="prtLotCost">Cost per lot <span class="unit">(lot = total sheets)</span></label>
+            <div class="input-wrap">
+              <input id="prtLotCost" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 2000">
+              <span class="suffix">₹</span>
+            </div>
+          </div>
+        </div>
+        <div class="proc-foot" id="prtFoot"></div>
+      </div>
+
+      <div class="proc">
+        <div class="proc-head">
+          <span class="proc-name">2. Leaf (foil)</span>
+          <span class="proc-formula">L × B × rate ÷ 100 = /sheet · × total sheets (floored at min)</span>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <label for="leafL">Leaf length</label>
+            <div class="input-wrap">
+              <input id="leafL" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 8">
+              <span class="suffix">in</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="leafB">Leaf breadth</label>
+            <div class="input-wrap">
+              <input id="leafB" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 12">
+              <span class="suffix">in</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="leafRate">Rate per 100 sq.inch</label>
+            <div class="input-wrap">
+              <input id="leafRate" type="number" inputmode="decimal" step="0.01" min="0" placeholder="e.g. 1.25">
+              <span class="suffix">₹ / 100 sq.in</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="leafMin">Minimum charge</label>
+            <div class="input-wrap">
+              <input id="leafMin" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 1000">
+              <span class="suffix">₹</span>
+            </div>
+          </div>
+        </div>
+        <div class="proc-foot" id="leafFoot"></div>
+      </div>
+
+      <div class="proc">
+        <div class="proc-head">
+          <span class="proc-name">3. Leaf Block</span>
+          <span class="proc-formula">flat ÷ total sheets → /sheet</span>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <label for="lbCost">Block cost</label>
+            <div class="input-wrap">
+              <input id="lbCost" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 1200">
+              <span class="suffix">₹</span>
+            </div>
+          </div>
+        </div>
+        <div class="proc-foot" id="lbFoot"></div>
+      </div>
+
+      <div class="proc">
+        <div class="proc-head">
+          <span class="proc-name">4. UV Hybrid</span>
+          <span class="proc-formula">(L × W) ÷ (sq.in per paisa × 100) = ₹/sheet · × total sheets</span>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <label for="uvL">UV area length</label>
+            <div class="input-wrap">
+              <input id="uvL" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 10">
+              <span class="suffix">in</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="uvW">UV area width</label>
+            <div class="input-wrap">
+              <input id="uvW" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 10">
+              <span class="suffix">in</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="uvCov">Area covered per paisa <span class="unit">(1p = ₹0.01)</span></label>
+            <div class="input-wrap">
+              <input id="uvCov" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 4">
+              <span class="suffix">sq.in / paisa</span>
+            </div>
+          </div>
+        </div>
+        <div class="proc-foot" id="uvFoot"></div>
+      </div>
+
+      <div class="proc">
+        <div class="proc-head">
+          <span class="proc-name">5. UV Hybrid Plate</span>
+          <span class="proc-formula">flat ÷ total sheets → /sheet</span>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <label for="uvpCost">Plate cost</label>
+            <div class="input-wrap">
+              <input id="uvpCost" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 800">
+              <span class="suffix">₹</span>
+            </div>
+          </div>
+        </div>
+        <div class="proc-foot" id="uvpFoot"></div>
+      </div>
+
+      <div class="proc">
+        <div class="proc-head">
+          <span class="proc-name">6. Crystal · Matt · Screen</span>
+          <span class="proc-formula">crystal ₹/sheet · matt (L×B)÷(paisa×100) · screen flat ÷ total sheets</span>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <label for="crystRate">Crystal rate / sheet</label>
+            <div class="input-wrap">
+              <input id="crystRate" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 1.5">
+              <span class="suffix">₹/sheet</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="screenCost">Screen charge</label>
+            <div class="input-wrap">
+              <input id="screenCost" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 400">
+              <span class="suffix">₹ flat</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="mattL">Matt length</label>
+            <div class="input-wrap">
+              <input id="mattL" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 6">
+              <span class="suffix">in</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="mattB">Matt breadth</label>
+            <div class="input-wrap">
+              <input id="mattB" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 4">
+              <span class="suffix">in</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="mattCov">Matt area / paisa <span class="unit">(1p = ₹0.01)</span></label>
+            <div class="input-wrap">
+              <input id="mattCov" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 4">
+              <span class="suffix">sq.in / paisa</span>
+            </div>
+          </div>
+        </div>
+        <div class="proc-foot" id="crystFoot"></div>
+      </div>
+
+      <div class="proc">
+        <div class="proc-head">
+          <span class="proc-name">7. Design</span>
+          <span class="proc-formula">flat ÷ effective sheets → /sheet</span>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <label for="designCost">Design cost</label>
+            <div class="input-wrap">
+              <input id="designCost" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 1500">
+              <span class="suffix">₹</span>
+            </div>
+          </div>
+        </div>
+        <div class="proc-foot" id="designFoot"></div>
+      </div>
+
+      <div class="proc">
+        <div class="proc-head">
+          <span class="proc-name">8. Freight / Cartage</span>
+          <span class="proc-formula">flat ÷ effective sheets → /sheet</span>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <label for="freightCost">Freight / Cartage</label>
+            <div class="input-wrap">
+              <input id="freightCost" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 800">
+              <span class="suffix">₹</span>
+            </div>
+          </div>
+        </div>
+        <div class="proc-foot" id="freightFoot"></div>
+      </div>
+
+      <div class="results">
+        <div class="results-grid">
+          <div class="result">
+            <div class="k">Extras / sheet</div>
+            <div class="v" id="exSheet">—</div>
+          </div>
+          <div class="result">
+            <div class="k">Extras / pack</div>
+            <div class="v" id="exPack">—</div>
+          </div>
+          <div class="result">
+            <div class="k">Extras total <span class="unit">(job)</span></div>
+            <div class="v" id="exTotal">—</div>
+          </div>
+          <div class="result">
+            <div class="k">Paper + Extras / sheet</div>
+            <div class="v" id="grandSheet">—</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="corr-card">
+      <h2>Corrugation</h2>
+      <p class="hint">Sheet weight × roll rate (with tax), plus per-sheet pasting cost from a 40×40 reference.</p>
+
+      <div class="section-label">Sheet</div>
+      <div class="grid">
+        <div class="field">
+          <label for="corrL">Length</label>
+          <div class="input-wrap">
+            <input id="corrL" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 30">
+            <span class="suffix">inches</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="corrW">Width</label>
+          <div class="input-wrap">
+            <input id="corrW" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 20">
+            <span class="suffix">inches</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="corrType">Ply type</label>
+          <div class="input-wrap">
+            <select id="corrType">
+              <option value="standard" selected>Standard</option>
+              <option value="universal">Universal</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="corrPlies">Number of plies</label>
+          <div class="input-wrap">
+            <select id="corrPlies">
+              <option value="3" selected>3 ply</option>
+              <option value="5">5 ply</option>
+              <option value="7">7 ply</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="corrGsmMode">Grammage mode</label>
+          <div class="input-wrap">
+            <select id="corrGsmMode">
+              <option value="same" selected>Same</option>
+              <option value="different">Different</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div id="corrSameWrap" class="grid">
+        <div class="field">
+          <label for="corrGsmSame">Grammage per ply</label>
+          <div class="input-wrap">
+            <input id="corrGsmSame" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 150">
+            <span class="suffix">gsm</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="corrDiffWrap" class="grid" style="display: none">
+        <div class="field ply-field" data-ply="1">
+          <label for="corrGsm1">Ply 1 grammage</label>
+          <div class="input-wrap">
+            <input id="corrGsm1" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 150">
+            <span class="suffix">gsm</span>
+          </div>
+        </div>
+        <div class="field ply-field" data-ply="2">
+          <label for="corrGsm2">Ply 2 grammage</label>
+          <div class="input-wrap">
+            <input id="corrGsm2" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 120">
+            <span class="suffix">gsm</span>
+          </div>
+        </div>
+        <div class="field ply-field" data-ply="3">
+          <label for="corrGsm3">Ply 3 grammage</label>
+          <div class="input-wrap">
+            <input id="corrGsm3" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 150">
+            <span class="suffix">gsm</span>
+          </div>
+        </div>
+        <div class="field ply-field" data-ply="4">
+          <label for="corrGsm4">Ply 4 grammage</label>
+          <div class="input-wrap">
+            <input id="corrGsm4" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 120">
+            <span class="suffix">gsm</span>
+          </div>
+        </div>
+        <div class="field ply-field" data-ply="5">
+          <label for="corrGsm5">Ply 5 grammage</label>
+          <div class="input-wrap">
+            <input id="corrGsm5" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 150">
+            <span class="suffix">gsm</span>
+          </div>
+        </div>
+        <div class="field ply-field" data-ply="6">
+          <label for="corrGsm6">Ply 6 grammage</label>
+          <div class="input-wrap">
+            <input id="corrGsm6" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 120">
+            <span class="suffix">gsm</span>
+          </div>
+        </div>
+        <div class="field ply-field" data-ply="7">
+          <label for="corrGsm7">Ply 7 grammage</label>
+          <div class="input-wrap">
+            <input id="corrGsm7" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 150">
+            <span class="suffix">gsm</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="inherited" id="corrGsmBanner">
+        <span>Total grammage: <b id="corrTotalGsm">—</b></span>
+        <span class="calc" id="corrGsmCalc">—</span>
+      </div>
+
+      <div class="section-label spaced">Costing</div>
+      <div class="grid">
+        <div class="field">
+          <label for="corrRollRate">Roll rate</label>
+          <div class="input-wrap">
+            <input id="corrRollRate" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 85">
+            <span class="suffix">₹ / kg</span>
+          </div>
+        </div>
+        <div class="field">
+          <label for="corrTax">Tax</label>
+          <div class="input-wrap">
+            <input id="corrTax" type="number" inputmode="decimal" step="0.1" value="12" placeholder="12">
+            <span class="suffix">%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label spaced">Sheet pasting <span class="unit" style="text-transform: none; letter-spacing: 0;">(₹1 minimum)</span></div>
+      <div class="grid">
+        <div class="field">
+          <label for="pasteFactor">Divide factor <span class="unit" id="pasteRefHint">(40 × 40 = ₹3.20)</span></label>
+          <div class="input-wrap">
+            <input id="pasteFactor" type="number" inputmode="decimal" step="1" min="1" value="500" placeholder="500">
+            <span class="suffix">sq.in / ₹</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="results">
+        <div class="results-grid">
+          <div class="result">
+            <div class="k">Weight / sheet</div>
+            <div class="v" id="corrWSheet">—</div>
+          </div>
+          <div class="result">
+            <div class="k">Corr cost / sheet <span class="unit">(incl. tax)</span></div>
+            <div class="v" id="corrCSheet">—</div>
+          </div>
+          <div class="result">
+            <div class="k">Paste cost / sheet</div>
+            <div class="v" id="corrPasteSheet">—</div>
+          </div>
+          <div class="result">
+            <div class="k">Corrugation / sheet <span class="unit">(corr + paste)</span></div>
+            <div class="v" id="corrGrandSheet">—</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="finishing-card">
+      <h2>Finishing &amp; Boxing</h2>
+      <p class="hint">Direct per-sheet rates for die cutting, side pasting, stitching, packing and freight. Final per-box cost = total/sheet ÷ boxes per sheet.</p>
+
+      <div class="section-label">Box layout</div>
+      <div class="grid">
+        <div class="field">
+          <label for="boxesPerSheet">Boxes per sheet</label>
+          <div class="input-wrap">
+            <input id="boxesPerSheet" type="number" inputmode="numeric" step="1" min="1" value="1" placeholder="1">
+            <span class="suffix">boxes / sheet</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="proc">
+        <div class="proc-head">
+          <span class="proc-name">1. Die Cutting</span>
+          <span class="proc-formula">manual ₹/sheet</span>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <label for="dieCut">Die cutting rate</label>
+            <div class="input-wrap">
+              <input id="dieCut" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 1.5">
+              <span class="suffix">₹/sheet</span>
+            </div>
+          </div>
+        </div>
+        <div class="proc-foot" id="dieCutFoot"></div>
+      </div>
+
+      <div class="proc">
+        <div class="proc-head">
+          <span class="proc-name">2. Side Pasting</span>
+          <span class="proc-formula">rate × boxes/sheet</span>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <label for="sidePaste">Side pasting rate <span class="unit">(per box)</span></label>
+            <div class="input-wrap">
+              <input id="sidePaste" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 0.5">
+              <span class="suffix">₹/box</span>
+            </div>
+          </div>
+        </div>
+        <div class="proc-foot" id="sidePasteFoot"></div>
+      </div>
+
+      <div class="proc">
+        <div class="proc-head">
+          <span class="proc-name">3. Stitching</span>
+          <span class="proc-formula">pins × ₹/pin → ₹/sheet</span>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <label for="stitchPins">Number of pins</label>
+            <div class="input-wrap">
+              <input id="stitchPins" type="number" inputmode="numeric" step="1" min="0" placeholder="e.g. 6">
+              <span class="suffix">pins / sheet</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="stitchPerPin">Cost per pin</label>
+            <div class="input-wrap">
+              <input id="stitchPerPin" type="number" inputmode="decimal" step="0.01" min="0" placeholder="e.g. 0.05">
+              <span class="suffix">₹/pin</span>
+            </div>
+          </div>
+        </div>
+        <div class="proc-foot" id="stitchFoot"></div>
+      </div>
+
+      <div class="proc">
+        <div class="proc-head">
+          <span class="proc-name">4. Packing</span>
+          <span class="proc-formula">manual ₹/sheet</span>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <label for="packCost">Packing rate</label>
+            <div class="input-wrap">
+              <input id="packCost" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 0.3">
+              <span class="suffix">₹/sheet</span>
+            </div>
+          </div>
+        </div>
+        <div class="proc-foot" id="packFoot"></div>
+      </div>
+
+      <div class="proc">
+        <div class="proc-head">
+          <span class="proc-name">5. Freight</span>
+          <span class="proc-formula">manual ₹/sheet</span>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <label for="finishFreight">Freight rate</label>
+            <div class="input-wrap">
+              <input id="finishFreight" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 0.5">
+              <span class="suffix">₹/sheet</span>
+            </div>
+          </div>
+        </div>
+        <div class="proc-foot" id="finishFreightFoot"></div>
+      </div>
+
+      <div class="results">
+        <div class="results-grid">
+          <div class="result">
+            <div class="k">Finishing / sheet</div>
+            <div class="v" id="finishSheet">—</div>
+          </div>
+          <div class="result">
+            <div class="k">Finishing / box</div>
+            <div class="v" id="finishBox">—</div>
+          </div>
+          <div class="result">
+            <div class="k">Finishing total <span class="unit">(job)</span></div>
+            <div class="v" id="finishTotal">—</div>
+          </div>
+          <div class="result">
+            <div class="k">Boxes in job</div>
+            <div class="v" id="finishBoxesTotal">—</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="grand-card">
+      <h2>Grand Total</h2>
+      <p class="hint">All steps combined per effective sheet, with per-box conversion at the end.</p>
+      <div class="results">
+        <div class="results-grid">
+          <div class="result">
+            <div class="k">Paper / sheet</div>
+            <div class="v" id="gPaper">—</div>
+          </div>
+          <div class="result">
+            <div class="k">Extras / sheet</div>
+            <div class="v" id="gExtras">—</div>
+          </div>
+          <div class="result">
+            <div class="k">Corrugation / sheet</div>
+            <div class="v" id="gCorr">—</div>
+          </div>
+          <div class="result">
+            <div class="k">Finishing / sheet</div>
+            <div class="v" id="gFinish">—</div>
+          </div>
+        </div>
+        <div class="results-grid" style="grid-template-columns: repeat(3, 1fr); margin-top: 12px;">
+          <div class="result">
+            <div class="k">Total / sheet</div>
+            <div class="v" id="gTotal">—</div>
+          </div>
+          <div class="result">
+            <div class="k">Total / box</div>
+            <div class="v" id="gPerBox">—</div>
+          </div>
+          <div class="result">
+            <div class="k">Job total <span class="unit">(₹)</span></div>
+            <div class="v" id="gJob">—</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>BoxCostCal · paper + extras + corrugation + finishing</footer>
+  </div>
+
+  <script>
+    // Imperial paper-industry weight formula:
+    //   weight_per_sheet_g = L_in × W_in × GSM ÷ 1540
+    const SHEET_DIVISOR = 1540;
+
+    const $ = (id) => document.getElementById(id);
+    const INPUT_IDS = [
+      // Step 1: paper
+      'length', 'width', 'gsm', 'pack', 'packets', 'cuts', 'wastage', 'wInc',
+      'rate', 'cInc', 'tax',
+      // Step 2: extras
+      'prtLotCost',
+      'leafL', 'leafB', 'leafRate', 'leafMin',
+      'lbCost',
+      'uvL', 'uvW', 'uvCov',
+      'uvpCost',
+      'crystRate', 'screenCost', 'mattL', 'mattB', 'mattCov',
+      'designCost', 'freightCost',
+      // Step 3: corrugation
+      'corrL', 'corrW', 'corrType', 'corrPlies', 'corrGsmMode', 'corrGsmSame',
+      'corrGsm1', 'corrGsm2', 'corrGsm3', 'corrGsm4', 'corrGsm5', 'corrGsm6', 'corrGsm7',
+      'corrRollRate', 'corrTax', 'pasteFactor',
+      // Step 4: finishing
+      'boxesPerSheet',
+      'dieCut', 'sidePaste', 'stitchPins', 'stitchPerPin', 'packCost', 'finishFreight',
+    ];
+    const inputs = INPUT_IDS.map($);
+
+    function round2(n) {
+      if (!isFinite(n)) return null;
+      return Math.round(n * 100) / 100;
+    }
+
+    function fmt(n, unit) {
+      if (n === null || n === undefined || !isFinite(n)) return '—';
+      const s = n.toFixed(2);
+      return unit ? `${s}<span class="unit">${unit}</span>` : s;
+    }
+
+    function readNum(el) {
+      const v = parseFloat(el.value);
+      return isFinite(v) ? v : NaN;
+    }
+    function readPct(el) {
+      const v = parseFloat(el.value);
+      return isFinite(v) ? v : 0;
+    }
+
+    function recompute() {
+      const L       = readNum($('length'));
+      const W       = readNum($('width'));
+      const gsm     = readNum($('gsm'));
+      const pack    = readNum($('pack'));
+      const packets = readNum($('packets'));
+      // Cuts: default to 1 if blank (no cutting = 1 piece per sheet)
+      const cutsRaw = parseFloat($('cuts').value);
+      const cuts    = isFinite(cutsRaw) && cutsRaw > 0 ? cutsRaw : 1;
+      const wastageRaw = parseFloat($('wastage').value);
+      const wastage = isFinite(wastageRaw) && wastageRaw > 0 ? wastageRaw : 0;
+      const wIncPct = readPct($('wInc'));
+      const rate    = readNum($('rate'));
+      const cIncPct = readPct($('cInc'));
+      const taxPct  = readPct($('tax'));
+
+      // Effective sheets drives both paper cost/sheet and all extras /sheet
+      const hasPack    = isFinite(pack) && pack > 0;
+      const hasPackets = isFinite(packets) && packets > 0;
+      let totalSheets = NaN, effectiveSheets = NaN;
+      if (hasPackets && hasPack) {
+        totalSheets = packets * pack * cuts;
+        const eff = totalSheets - wastage;
+        if (eff > 0) effectiveSheets = eff;
+      }
+      const hasQty = isFinite(effectiveSheets) && effectiveSheets > 0;
+      const jobQty = effectiveSheets; // alias kept for downstream code
+
+      let wSheet_g = NaN, wPack_kg = NaN, cPack = NaN, cSheet = NaN;
+
+      if (isFinite(L) && isFinite(W) && isFinite(gsm) && L > 0 && W > 0 && gsm > 0) {
+        const raw_g = (L * W * gsm) / SHEET_DIVISOR;
+        wSheet_g = raw_g * (1 + wIncPct / 100);
+
+        if (isFinite(pack) && pack > 0) {
+          wPack_kg = (wSheet_g * pack) / 1000;
+
+          if (isFinite(rate) && rate >= 0) {
+            const base       = wPack_kg * rate;
+            const withMarkup = base * (1 + cIncPct / 100);
+            const withTax    = withMarkup * (1 + taxPct / 100);
+            cPack  = withTax;
+            // cost/sheet is per final (post-cut, post-wastage) usable sheet
+            if (hasQty) {
+              cSheet = (cPack * packets) / effectiveSheets;
+            } else {
+              cSheet = cPack / (pack * cuts); // fallback when packets blank
+            }
+          }
+        }
+      }
+
+      $('r-wsheet').querySelector('.v').innerHTML = fmt(round2(wSheet_g), ' g');
+      $('r-wpack').querySelector('.v').innerHTML  = fmt(round2(wPack_kg), ' kg');
+      $('r-cpack').querySelector('.v').innerHTML  = fmt(round2(cPack), ' ₹');
+      $('r-csheet').querySelector('.v').innerHTML = fmt(round2(cSheet), ' ₹');
+
+      // ===== STEP 2: EXTRA PROCESSES =====
+      // effectiveSheets, jobQty, hasQty, hasPack already computed above
+      $('jobTotal').textContent = hasQty ? `${effectiveSheets.toLocaleString('en-IN')} sheets` : '—';
+      if (hasPackets && hasPack) {
+        const base = `${packets} packets × ${pack} pack × ${cuts} cuts`;
+        const sub  = wastage > 0 ? ` − ${wastage} wastage` : '';
+        const eq   = hasQty ? ` = ${effectiveSheets.toLocaleString('en-IN')}` : '';
+        $('jobCalc').textContent = base + sub + eq;
+      } else {
+        $('jobCalc').textContent = 'enter packets + pack size in Step 1';
+      }
+
+      // 1. Printing — lot covers entire job, so /sheet = cost/lot ÷ total sheets
+      const prtLotCost = readNum($('prtLotCost'));
+      let prtPerSheet = NaN, prtPerPack = NaN, prtTotal = NaN;
+      if (isFinite(prtLotCost) && hasQty) {
+        prtPerSheet = prtLotCost / jobQty;
+        if (hasPack) prtPerPack = prtPerSheet * pack;
+        prtTotal = prtLotCost;
+      }
+      setFoot('prtFoot', [
+        ['cost / sheet', fmt(round2(prtPerSheet), ' ₹')],
+        ['cost / pack',  fmt(round2(prtPerPack),  ' ₹')],
+        ['total',        fmt(round2(prtTotal),    ' ₹')],
+      ]);
+
+      // 2. Leaf — rate is ₹ per 100 sq.in, so /sheet = L × B × rate ÷ 100;
+      // total = max(per-sheet × total sheets, min)
+      const leafL    = readNum($('leafL'));
+      const leafB    = readNum($('leafB'));
+      const leafRate = readNum($('leafRate'));
+      const leafMin  = readNum($('leafMin'));
+      let leafPerSheet = NaN, leafTotal = NaN, leafFloored = false;
+      if (isFinite(leafL) && isFinite(leafB) && leafL > 0 && leafB > 0 &&
+          isFinite(leafRate) && leafRate >= 0) {
+        leafPerSheet = (leafL * leafB * leafRate) / 100;
+        if (hasQty) {
+          const calc = leafPerSheet * jobQty;
+          const min  = isFinite(leafMin) ? leafMin : 0;
+          leafTotal   = Math.max(calc, min);
+          leafFloored = calc < min;
+        }
+      }
+      setFoot('leafFoot', [
+        ['cost / sheet', fmt(round2(leafPerSheet), ' ₹')],
+        ['total',        fmt(round2(leafTotal),    leafFloored ? ' ₹ (min)' : ' ₹')],
+      ]);
+
+      // 3. Leaf Block — flat charge spread over all sheets
+      const lbCost  = readNum($('lbCost'));
+      const lbTotal = isFinite(lbCost) ? lbCost : NaN;
+      const lbPerSheet = (isFinite(lbTotal) && hasQty) ? lbTotal / jobQty : NaN;
+      setFoot('lbFoot', [
+        ['cost / sheet', fmt(round2(lbPerSheet), ' ₹')],
+        ['total',        fmt(round2(lbTotal),    ' ₹')],
+      ]);
+
+      // 4. UV Hybrid — 1 paisa (₹0.01) covers `uvCov` sq.in;
+      // /sheet ₹ = (L × W) ÷ uvCov ÷ 100
+      const uvL    = readNum($('uvL'));
+      const uvW    = readNum($('uvW'));
+      const uvCov  = readNum($('uvCov'));
+      let uvPerSheet = NaN, uvTotal = NaN;
+      if (isFinite(uvL) && isFinite(uvW) && isFinite(uvCov) &&
+          uvL > 0 && uvW > 0 && uvCov > 0) {
+        uvPerSheet = (uvL * uvW) / (uvCov * 100);
+        if (hasQty) uvTotal = uvPerSheet * jobQty;
+      }
+      setFoot('uvFoot', [
+        ['cost / sheet', fmt(round2(uvPerSheet), ' ₹')],
+        ['total',        fmt(round2(uvTotal),    ' ₹')],
+      ]);
+
+      // 5. UV Hybrid Plate — flat charge spread over all sheets
+      const uvpCost  = readNum($('uvpCost'));
+      const uvpTotal = isFinite(uvpCost) ? uvpCost : NaN;
+      const uvpPerSheet = (isFinite(uvpTotal) && hasQty) ? uvpTotal / jobQty : NaN;
+      setFoot('uvpFoot', [
+        ['cost / sheet', fmt(round2(uvpPerSheet), ' ₹')],
+        ['total',        fmt(round2(uvpTotal),    ' ₹')],
+      ]);
+
+      // 6. Crystal · Matt · Screen — each shown per-sheet, plus group total
+      const crystRate  = readNum($('crystRate'));
+      const screenCost = readNum($('screenCost'));
+      const mattL      = readNum($('mattL'));
+      const mattB      = readNum($('mattB'));
+      const mattCov    = readNum($('mattCov'));
+      let crystPerSheet = NaN, mattPerSheet = NaN, screenPerSheet = NaN;
+      let crystTotal = NaN, mattTotal = NaN, screenTotal = NaN, crystGroup = NaN;
+      if (isFinite(crystRate)) {
+        crystPerSheet = crystRate;
+        if (hasQty) crystTotal = crystRate * jobQty;
+      }
+      if (isFinite(mattL) && isFinite(mattB) && isFinite(mattCov) &&
+          mattL > 0 && mattB > 0 && mattCov > 0) {
+        // Same model as UV Hybrid: 1 paisa covers `mattCov` sq.in
+        mattPerSheet = (mattL * mattB) / (mattCov * 100);
+        if (hasQty) mattTotal = mattPerSheet * jobQty;
+      }
+      if (isFinite(screenCost)) {
+        screenTotal = screenCost;
+        if (hasQty) screenPerSheet = screenCost / jobQty;
+      }
+      const cParts = [crystTotal, mattTotal, screenTotal].filter(isFinite);
+      if (cParts.length) crystGroup = cParts.reduce((a, b) => a + b, 0);
+      setFoot('crystFoot', [
+        ['crystal /sheet', fmt(round2(crystPerSheet),  ' ₹')],
+        ['matt /sheet',    fmt(round2(mattPerSheet),   ' ₹')],
+        ['screen /sheet',  fmt(round2(screenPerSheet), ' ₹')],
+        ['group total',    fmt(round2(crystGroup),     ' ₹')],
+      ]);
+
+      // 7. Design — flat ÷ effective sheets
+      const designCost = readNum($('designCost'));
+      const designTotal = isFinite(designCost) ? designCost : NaN;
+      const designPerSheet = (isFinite(designTotal) && hasQty) ? designTotal / jobQty : NaN;
+      setFoot('designFoot', [
+        ['cost / sheet', fmt(round2(designPerSheet), ' ₹')],
+        ['total',        fmt(round2(designTotal),    ' ₹')],
+      ]);
+
+      // 8. Freight / Cartage — flat ÷ effective sheets
+      const freightCost = readNum($('freightCost'));
+      const freightTotal = isFinite(freightCost) ? freightCost : NaN;
+      const freightPerSheet = (isFinite(freightTotal) && hasQty) ? freightTotal / jobQty : NaN;
+      setFoot('freightFoot', [
+        ['cost / sheet', fmt(round2(freightPerSheet), ' ₹')],
+        ['total',        fmt(round2(freightTotal),    ' ₹')],
+      ]);
+
+      // Grand totals across all extras
+      const allTotals = [prtTotal, leafTotal, lbTotal, uvTotal, uvpTotal, crystGroup, designTotal, freightTotal].filter(isFinite);
+      const exTotal = allTotals.length ? allTotals.reduce((a, b) => a + b, 0) : NaN;
+      const exSheet = (isFinite(exTotal) && hasQty)  ? exTotal / jobQty : NaN;
+      const exPack  = (isFinite(exSheet) && hasPack) ? exSheet * pack   : NaN;
+      const grandSheet = (isFinite(exSheet) && isFinite(cSheet)) ? exSheet + cSheet : NaN;
+
+      $('exSheet').innerHTML    = fmt(round2(exSheet),    ' ₹');
+      $('exPack').innerHTML     = fmt(round2(exPack),     ' ₹');
+      $('exTotal').innerHTML    = fmt(round2(exTotal),    ' ₹');
+      $('grandSheet').innerHTML = fmt(round2(grandSheet), ' ₹');
+
+      // ===== STEP 3: CORRUGATION =====
+      const corrL    = readNum($('corrL'));
+      const corrW    = readNum($('corrW'));
+      const corrType = $('corrType').value;
+      const plies    = parseInt($('corrPlies').value, 10) || 3;
+      const gsmMode  = $('corrGsmMode').value;
+      const corrRollRate = readNum($('corrRollRate'));
+      const corrTaxPct   = readPct($('corrTax'));
+      const pasteFactor  = readNum($('pasteFactor'));
+
+      // Standard: 3→1, 5→2, 7→3 weight groups. Universal: groups = plies.
+      const groups = corrType === 'standard'
+        ? ({ 3: 1, 5: 2, 7: 3 }[plies] || 1)
+        : plies;
+
+      // Total grammage across the weight groups
+      let corrTotalGsm = 0;
+      let corrGsmCalc = '';
+      if (gsmMode === 'same') {
+        const same = readNum($('corrGsmSame'));
+        if (isFinite(same) && same > 0) {
+          corrTotalGsm = same * groups;
+          corrGsmCalc = groups > 1 ? `${same} × ${groups} = ${corrTotalGsm}` : `${same}`;
+        }
+      } else {
+        const parts = [];
+        for (let i = 1; i <= groups; i++) {
+          const g = readNum($('corrGsm' + i));
+          if (isFinite(g) && g > 0) {
+            corrTotalGsm += g;
+            parts.push(g);
+          }
+        }
+        if (parts.length) corrGsmCalc = `${parts.join(' + ')} = ${corrTotalGsm}`;
+      }
+
+      let corrWSheet_g = NaN, corrCSheet = NaN, corrPasteSheet = NaN, corrGrandSheet = NaN;
+
+      if (isFinite(corrL) && isFinite(corrW) && corrL > 0 && corrW > 0 && corrTotalGsm > 0) {
+        corrWSheet_g = (corrL * corrW * corrTotalGsm) / 1540;
+        if (isFinite(corrRollRate) && corrRollRate >= 0) {
+          const base = (corrWSheet_g / 1000) * corrRollRate;
+          corrCSheet = base * (1 + corrTaxPct / 100);
+        }
+      }
+
+      // Pasting: cost/sheet = (L × W) ÷ factor; show 40×40 reference inline
+      const factorEff = isFinite(pasteFactor) && pasteFactor > 0 ? pasteFactor : NaN;
+      $('pasteRefHint').textContent = isFinite(factorEff)
+        ? `(40 × 40 = ₹${(1600 / factorEff).toFixed(2)})`
+        : '(set factor for reference)';
+      if (isFinite(corrL) && isFinite(corrW) && isFinite(factorEff) &&
+          corrL > 0 && corrW > 0) {
+        const raw = (corrL * corrW) / factorEff;
+        corrPasteSheet = Math.max(raw, 1); // ₹1/sheet minimum
+      }
+
+      const corrParts = [corrCSheet, corrPasteSheet].filter(isFinite);
+      if (corrParts.length) corrGrandSheet = corrParts.reduce((a, b) => a + b, 0);
+
+      $('corrTotalGsm').textContent = corrTotalGsm > 0 ? `${round2(corrTotalGsm)} gsm` : '—';
+      $('corrGsmCalc').textContent = corrGsmCalc || '—';
+      $('corrWSheet').innerHTML      = fmt(round2(corrWSheet_g),     ' g');
+      $('corrCSheet').innerHTML      = fmt(round2(corrCSheet),       ' ₹');
+      $('corrPasteSheet').innerHTML  = fmt(round2(corrPasteSheet),   ' ₹');
+      $('corrGrandSheet').innerHTML  = fmt(round2(corrGrandSheet),   ' ₹');
+
+      // ===== STEP 4: FINISHING & BOXING =====
+      const bpsRaw = parseInt($('boxesPerSheet').value, 10);
+      const boxesPerSheet = isFinite(bpsRaw) && bpsRaw > 0 ? bpsRaw : 1;
+
+      const dieCut         = readNum($('dieCut'));
+      const sidePaste      = readNum($('sidePaste'));
+      const stitchPins     = readNum($('stitchPins'));
+      const stitchPerPin   = readNum($('stitchPerPin'));
+      const packCost       = readNum($('packCost'));
+      const finishFreight  = readNum($('finishFreight'));
+
+      // 1. Die Cutting — direct ₹/sheet
+      const dieCutPerSheet = isFinite(dieCut) ? dieCut : NaN;
+      const dieCutTotal = (isFinite(dieCutPerSheet) && hasQty) ? dieCutPerSheet * effectiveSheets : NaN;
+      setFoot('dieCutFoot', [
+        ['cost / sheet', fmt(round2(dieCutPerSheet), ' ₹')],
+        ['total',        fmt(round2(dieCutTotal),    ' ₹')],
+      ]);
+
+      // 2. Side Pasting — rate × boxes per sheet
+      const sidePastePerSheet = isFinite(sidePaste) ? sidePaste * boxesPerSheet : NaN;
+      const sidePasteTotal = (isFinite(sidePastePerSheet) && hasQty) ? sidePastePerSheet * effectiveSheets : NaN;
+      setFoot('sidePasteFoot', [
+        ['rate × boxes', `${isFinite(sidePaste) ? round2(sidePaste) : '—'} × ${boxesPerSheet}`],
+        ['cost / sheet', fmt(round2(sidePastePerSheet), ' ₹')],
+        ['total',        fmt(round2(sidePasteTotal),    ' ₹')],
+      ]);
+
+      // 3. Stitching — pins × ₹/pin = ₹/sheet
+      let stitchPerSheet = NaN;
+      if (isFinite(stitchPins) && isFinite(stitchPerPin) && stitchPins >= 0 && stitchPerPin >= 0) {
+        stitchPerSheet = stitchPins * stitchPerPin;
+      }
+      const stitchTotal = (isFinite(stitchPerSheet) && hasQty) ? stitchPerSheet * effectiveSheets : NaN;
+      setFoot('stitchFoot', [
+        ['cost / sheet', fmt(round2(stitchPerSheet), ' ₹')],
+        ['total',        fmt(round2(stitchTotal),    ' ₹')],
+      ]);
+
+      // 4. Packing — direct ₹/sheet
+      const packPerSheet = isFinite(packCost) ? packCost : NaN;
+      const packTotal = (isFinite(packPerSheet) && hasQty) ? packPerSheet * effectiveSheets : NaN;
+      setFoot('packFoot', [
+        ['cost / sheet', fmt(round2(packPerSheet), ' ₹')],
+        ['total',        fmt(round2(packTotal),    ' ₹')],
+      ]);
+
+      // 5. Freight — direct ₹/sheet (separate from Step 2's flat freight)
+      const finishFreightPerSheet = isFinite(finishFreight) ? finishFreight : NaN;
+      const finishFreightTotal = (isFinite(finishFreightPerSheet) && hasQty) ? finishFreightPerSheet * effectiveSheets : NaN;
+      setFoot('finishFreightFoot', [
+        ['cost / sheet', fmt(round2(finishFreightPerSheet), ' ₹')],
+        ['total',        fmt(round2(finishFreightTotal),    ' ₹')],
+      ]);
+
+      // Finishing /sheet = sum of all components
+      const finishParts = [dieCutPerSheet, sidePastePerSheet, stitchPerSheet, packPerSheet, finishFreightPerSheet].filter(isFinite);
+      const finishSheet = finishParts.length ? finishParts.reduce((a, b) => a + b, 0) : NaN;
+      const finishBox = (isFinite(finishSheet) && boxesPerSheet > 0) ? finishSheet / boxesPerSheet : NaN;
+      const finishTotalJob = (isFinite(finishSheet) && hasQty) ? finishSheet * effectiveSheets : NaN;
+      const boxesInJob = hasQty ? effectiveSheets * boxesPerSheet : NaN;
+
+      $('finishSheet').innerHTML       = fmt(round2(finishSheet),    ' ₹');
+      $('finishBox').innerHTML         = fmt(round2(finishBox),      ' ₹');
+      $('finishTotal').innerHTML       = fmt(round2(finishTotalJob), ' ₹');
+      $('finishBoxesTotal').textContent = isFinite(boxesInJob)
+        ? boxesInJob.toLocaleString('en-IN')
+        : '—';
+
+      // ===== GRAND TOTAL =====
+      const gPaperPart  = isFinite(cSheet)         ? cSheet         : 0;
+      const gExPart     = isFinite(exSheet)        ? exSheet        : 0;
+      const gCorrPart   = isFinite(corrGrandSheet) ? corrGrandSheet : 0;
+      const gFinishPart = isFinite(finishSheet)    ? finishSheet    : 0;
+      const anyPart = isFinite(cSheet) || isFinite(exSheet) || isFinite(corrGrandSheet) || isFinite(finishSheet);
+      const gTotal = anyPart ? (gPaperPart + gExPart + gCorrPart + gFinishPart) : NaN;
+      const gPerBox = (isFinite(gTotal) && boxesPerSheet > 0) ? gTotal / boxesPerSheet : NaN;
+      const gJob = (isFinite(gTotal) && hasQty) ? gTotal * effectiveSheets : NaN;
+
+      $('gPaper').innerHTML  = fmt(round2(cSheet),         ' ₹');
+      $('gExtras').innerHTML = fmt(round2(exSheet),        ' ₹');
+      $('gCorr').innerHTML   = fmt(round2(corrGrandSheet), ' ₹');
+      $('gFinish').innerHTML = fmt(round2(finishSheet),    ' ₹');
+      $('gTotal').innerHTML  = fmt(round2(gTotal),         ' ₹');
+      $('gPerBox').innerHTML = fmt(round2(gPerBox),        ' ₹');
+      $('gJob').innerHTML    = isFinite(gJob)
+        ? `${round2(gJob).toLocaleString('en-IN')}<span class="unit"> ₹</span>`
+        : '—';
+    }
+
+    function setFoot(footId, pairs) {
+      const el = $(footId);
+      if (!el) return;
+      el.innerHTML = pairs.map(([label, val]) =>
+        `<span>${label} <b>${val}</b></span>`
+      ).join('');
+    }
+
+    inputs.forEach(el => el.addEventListener('input', recompute));
+    // selects don't fire 'input' on all browsers; bind change too
+    ['corrType', 'corrPlies', 'corrGsmMode'].forEach(id =>
+      $(id).addEventListener('change', recompute));
+
+    function updatePlyVisibility() {
+      const type  = $('corrType').value;
+      const plies = parseInt($('corrPlies').value, 10) || 3;
+      const mode  = $('corrGsmMode').value;
+      const groups = type === 'standard'
+        ? ({ 3: 1, 5: 2, 7: 3 }[plies] || 1)
+        : plies;
+      const labelPrefix = type === 'standard' ? 'Layer' : 'Ply';
+
+      $('corrSameWrap').style.display = mode === 'same'      ? '' : 'none';
+      $('corrDiffWrap').style.display = mode === 'different' ? '' : 'none';
+      document.querySelectorAll('#corrDiffWrap .ply-field').forEach(el => {
+        const n = parseInt(el.dataset.ply, 10);
+        el.style.display = n <= groups ? '' : 'none';
+        const lbl = el.querySelector('label');
+        if (lbl) lbl.textContent = `${labelPrefix} ${n} grammage`;
+      });
+    }
+    ['corrType', 'corrPlies', 'corrGsmMode'].forEach(id =>
+      $(id).addEventListener('change', updatePlyVisibility));
+    updatePlyVisibility();
+
+    recompute();
+
+    // ===== MODULES (save / load / delete / reset) =====
+    const STORAGE_PREFIX = 'boxcostcal_module_';
+
+    function listModules() {
+      return Object.keys(localStorage)
+        .filter(k => k.startsWith(STORAGE_PREFIX))
+        .map(k => k.slice(STORAGE_PREFIX.length))
+        .sort((a, b) => a.localeCompare(b));
+    }
+
+    function populateModuleList(selectName) {
+      const sel = $('modLoad');
+      const names = listModules();
+      const opts = ['<option value="">— select module —</option>']
+        .concat(names.map(n => {
+          const safe = n.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+          return `<option value="${safe}">${safe}</option>`;
+        }));
+      sel.innerHTML = opts.join('');
+      if (selectName) sel.value = selectName;
+    }
+
+    let statusTimer = null;
+    function setStatus(msg, isError) {
+      const el = $('modStatus');
+      el.textContent = msg || '';
+      el.classList.toggle('err', !!isError);
+      el.classList.remove('fading');
+      if (statusTimer) clearTimeout(statusTimer);
+      if (msg) {
+        statusTimer = setTimeout(() => el.classList.add('fading'), 3000);
+      }
+    }
+
+    function saveModule() {
+      try {
+        const name = $('modSaveName').value.trim();
+        if (!name) { setStatus('Enter a module name to save.', true); return; }
+        if (localStorage.getItem(STORAGE_PREFIX + name) &&
+            !confirm(`Overwrite existing module "${name}"?`)) return;
+        const data = {};
+        let savedCount = 0;
+        INPUT_IDS.forEach(id => {
+          const el = $(id);
+          if (!el) return; // skip missing inputs gracefully
+          data[id] = el.value;
+          savedCount++;
+        });
+        localStorage.setItem(STORAGE_PREFIX + name, JSON.stringify(data));
+        $('modSaveName').value = '';
+        populateModuleList(name);
+        setStatus(`Saved module "${name}" (${savedCount} fields).`);
+      } catch (err) {
+        setStatus(`Save failed: ${err.message}`, true);
+      }
+    }
+
+    function loadModule(name) {
+      try {
+        if (!name) { setStatus('Select a module to load.', true); return; }
+        const raw = localStorage.getItem(STORAGE_PREFIX + name);
+        if (!raw) { setStatus(`Module "${name}" not found.`, true); return; }
+        const data = JSON.parse(raw);
+        let loadedCount = 0;
+        INPUT_IDS.forEach(id => {
+          if (!(id in data)) return;
+          const el = $(id);
+          if (!el) return;
+          el.value = data[id];
+          loadedCount++;
+        });
+        updatePlyVisibility();
+        recompute();
+        setStatus(`Loaded module "${name}" (${loadedCount} fields applied).`);
+      } catch (err) {
+        setStatus(`Load failed: ${err.message}`, true);
+      }
+    }
+
+    function deleteModule() {
+      const name = $('modLoad').value;
+      if (!name) { setStatus('Select a module to delete.', true); return; }
+      if (!confirm(`Delete module "${name}"?`)) return;
+      localStorage.removeItem(STORAGE_PREFIX + name);
+      populateModuleList();
+      setStatus(`Deleted module "${name}".`);
+    }
+
+    function resetAll() {
+      if (!confirm('Clear all inputs?')) return;
+      INPUT_IDS.forEach(id => {
+        const el = $(id);
+        if (el) el.value = '';
+      });
+      // restore ply select defaults so corrugation stays usable
+      $('corrType').value      = 'standard';
+      $('corrPlies').value     = '3';
+      $('corrGsmMode').value   = 'same';
+      $('corrTax').value       = '12';
+      $('pasteFactor').value   = '500';
+      $('boxesPerSheet').value = '1';
+      updatePlyVisibility();
+      recompute();
+      setStatus('Reset all inputs.');
+    }
+
+    $('modSaveBtn').addEventListener('click', saveModule);
+    $('modLoadBtn').addEventListener('click', () => loadModule($('modLoad').value));
+    $('modDeleteBtn').addEventListener('click', deleteModule);
+    $('modResetBtn').addEventListener('click', resetAll);
+    populateModuleList();
+  </script>
+</body>
+</html>

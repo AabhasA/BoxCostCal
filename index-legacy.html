@@ -1,0 +1,2011 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BoxCostCal - Corrugated Box Cost Calculator</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f1ea;
+      --panel: #fffdf8;
+      --panel-strong: #ffffff;
+      --ink: #18201f;
+      --muted: #69706f;
+      --line: #d9d4c8;
+      --line-strong: #bcb5a7;
+      --green: #176b5b;
+      --green-dark: #0f4a3f;
+      --amber: #b95f18;
+      --blue: #2559a7;
+      --red: #b42318;
+      --shadow: 0 18px 45px rgba(24, 32, 31, 0.1);
+      --radius: 8px;
+      --control: 44px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(180deg, rgba(255, 253, 248, 0.92), rgba(244, 241, 234, 0.96)),
+        repeating-linear-gradient(90deg, rgba(24, 32, 31, 0.035) 0 1px, transparent 1px 42px);
+      color: var(--ink);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .app {
+      width: min(1480px, calc(100vw - 28px));
+      margin: 0 auto;
+      padding: 18px 0 28px;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: minmax(230px, 1fr) auto;
+      gap: 18px;
+      align-items: end;
+      padding: 12px 0 18px;
+    }
+
+    .brand {
+      display: grid;
+      gap: 6px;
+    }
+
+    .eyebrow {
+      width: fit-content;
+      padding: 4px 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.7);
+      color: var(--green-dark);
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.65rem, 3vw, 3.2rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 720px;
+      color: var(--muted);
+      font-size: 0.98rem;
+      line-height: 1.45;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .ghost-button,
+    .primary-button {
+      min-height: var(--control);
+      border-radius: var(--radius);
+      border: 1px solid var(--line-strong);
+      padding: 0 14px;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.76);
+      cursor: pointer;
+      font-weight: 800;
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+    }
+
+    .primary-button {
+      border-color: var(--green-dark);
+      background: var(--green);
+      color: #fff;
+    }
+
+    .ghost-button:hover,
+    .primary-button:hover {
+      transform: translateY(-1px);
+      border-color: var(--green);
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(310px, 0.85fr) minmax(340px, 0.9fr) minmax(360px, 1fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 253, 248, 0.94);
+      box-shadow: var(--shadow);
+      overflow: clip;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 56px;
+      padding: 14px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.62);
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 0.9rem;
+      line-height: 1.2;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      font-weight: 900;
+    }
+
+    .panel-note {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.35;
+      text-align: right;
+    }
+
+    .panel-body {
+      padding: 14px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .field-group {
+      display: grid;
+      gap: 10px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(217, 212, 200, 0.84);
+    }
+
+    .field-group:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .group-label {
+      margin: 0;
+      color: var(--green-dark);
+      font-size: 0.75rem;
+      font-weight: 900;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .grid-2,
+    .grid-3 {
+      display: grid;
+      gap: 10px;
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .save-grid {
+      display: grid;
+      grid-template-columns: minmax(160px, 1fr) auto auto;
+      gap: 8px;
+      align-items: end;
+    }
+
+    .save-row {
+      display: grid;
+      grid-template-columns: minmax(160px, 1fr) auto;
+      gap: 8px;
+      align-items: end;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-height: var(--control);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel-strong);
+      color: var(--ink);
+      padding: 0 10px;
+      outline: none;
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(23, 107, 91, 0.14);
+    }
+
+    input[type="number"] {
+      appearance: textfield;
+    }
+
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      margin: 0;
+      appearance: none;
+    }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.62);
+    }
+
+    .segmented button {
+      min-height: 36px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-weight: 900;
+    }
+
+    .segmented button.active {
+      color: #fff;
+      background: var(--green);
+    }
+
+    .layer-row {
+      display: grid;
+      grid-template-columns: minmax(92px, 1fr) 86px 86px;
+      gap: 8px;
+      align-items: end;
+    }
+
+    .layer-row[data-hidden="true"],
+    .optional-row[data-hidden="true"] {
+      display: none;
+    }
+
+    .small-button {
+      min-height: 36px;
+      padding: 0 10px;
+      font-size: 0.78rem;
+    }
+
+    .jobwork-toolbar {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .jobwork-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .jobwork-row {
+      display: grid;
+      grid-template-columns: 28px minmax(156px, 1fr) 92px 78px 28px;
+      gap: 8px;
+      align-items: end;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.68);
+    }
+
+    .jobwork-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: var(--control);
+    }
+
+    .jobwork-toggle input {
+      width: 20px;
+      min-height: 20px;
+      accent-color: var(--green);
+    }
+
+    .icon-button {
+      width: 28px;
+      min-height: var(--control);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel-strong);
+      color: var(--muted);
+      cursor: pointer;
+      font-weight: 950;
+    }
+
+    .icon-button:hover {
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    .icon-button:disabled {
+      border-color: transparent;
+      background: transparent;
+      color: transparent;
+      cursor: default;
+    }
+
+    .quote-panel {
+      position: sticky;
+      top: 12px;
+      background: #101817;
+      color: #f8f5ee;
+      border-color: #101817;
+    }
+
+    .quote-panel .panel-header {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .quote-panel .panel-note,
+    .quote-panel .panel-title {
+      color: #f8f5ee;
+    }
+
+    .price-stack {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .price-main {
+      grid-column: 1 / -1;
+      padding: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, rgba(23, 107, 91, 0.92), rgba(37, 89, 167, 0.72));
+    }
+
+    .price-label {
+      margin: 0 0 6px;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.75rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .price-value {
+      margin: 0;
+      font-size: clamp(2.1rem, 4.8vw, 4.1rem);
+      line-height: 0.9;
+      letter-spacing: 0;
+      font-weight: 950;
+    }
+
+    .metric {
+      min-height: 88px;
+      padding: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .metric span {
+      display: block;
+      color: rgba(255, 255, 255, 0.67);
+      font-size: 0.72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 8px;
+      color: #fff;
+      font-size: 1.16rem;
+      line-height: 1.1;
+    }
+
+    .breakdown {
+      display: grid;
+      gap: 10px;
+      margin-top: 2px;
+    }
+
+    .bar-row {
+      display: grid;
+      gap: 6px;
+    }
+
+    .bar-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .bar-track {
+      height: 9px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: var(--w, 0%);
+      border-radius: inherit;
+      background: var(--c, var(--green));
+    }
+
+    .preview {
+      display: grid;
+      gap: 12px;
+    }
+
+    .diagram-shell {
+      min-height: 270px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(247, 243, 235, 0.65)),
+        repeating-linear-gradient(0deg, transparent 0 27px, rgba(24, 32, 31, 0.05) 27px 28px),
+        repeating-linear-gradient(90deg, transparent 0 27px, rgba(24, 32, 31, 0.05) 27px 28px);
+      display: grid;
+      place-items: center;
+      padding: 14px;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      max-width: 440px;
+      height: auto;
+    }
+
+    .sheet {
+      fill: #f4c879;
+      stroke: #6d5122;
+      stroke-width: 2;
+    }
+
+    .score {
+      stroke: #6d5122;
+      stroke-width: 1.5;
+      stroke-dasharray: 7 6;
+    }
+
+    .cut {
+      stroke: #6d5122;
+      stroke-width: 2;
+    }
+
+    .ink-mark {
+      fill: rgba(23, 107, 91, 0.2);
+      stroke: #176b5b;
+      stroke-width: 1.5;
+    }
+
+    .diagram-label {
+      fill: #18201f;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .spec-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .spec-tile {
+      min-height: 72px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.68);
+    }
+
+    .spec-tile span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.7rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .spec-tile strong {
+      display: block;
+      margin-top: 6px;
+      color: var(--ink);
+      font-size: 1rem;
+      line-height: 1.1;
+    }
+
+    .audit {
+      display: grid;
+      gap: 8px;
+    }
+
+    .audit-item {
+      display: grid;
+      grid-template-columns: 10px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.66);
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.35;
+      font-weight: 700;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      margin-top: 4px;
+      border-radius: 999px;
+      background: var(--green);
+    }
+
+    .dot.warn {
+      background: var(--amber);
+    }
+
+    .dot.bad {
+      background: var(--red);
+    }
+
+    .footer-line {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 0.75rem;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    @media (max-width: 1180px) {
+      .workspace {
+        grid-template-columns: minmax(320px, 1fr) minmax(360px, 1fr);
+      }
+
+      .quote-panel {
+        grid-column: 1 / -1;
+        position: static;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .app {
+        width: min(100vw - 18px, 620px);
+        padding-top: 8px;
+      }
+
+      .topbar,
+      .workspace,
+      .grid-2,
+      .grid-3,
+      .save-grid,
+      .save-row,
+      .price-stack,
+      .spec-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .top-actions {
+        justify-content: stretch;
+      }
+
+      .ghost-button,
+      .primary-button {
+        width: 100%;
+      }
+
+      .panel-header {
+        align-items: start;
+        flex-direction: column;
+      }
+
+      .panel-note {
+        text-align: left;
+      }
+
+      .layer-row {
+        grid-template-columns: 1fr 82px 82px;
+      }
+
+      .jobwork-row {
+        grid-template-columns: 28px minmax(0, 1fr) 78px 28px;
+        gap: 6px;
+      }
+
+      .jobwork-row .jobwork-toggle {
+        grid-column: 1;
+        grid-row: 1 / span 2;
+        align-self: center;
+      }
+
+      .jobwork-row label:nth-of-type(2) {
+        grid-column: 2 / -1;
+        grid-row: 1;
+      }
+
+      .jobwork-row label:nth-of-type(3) {
+        grid-column: 2;
+        grid-row: 2;
+      }
+
+      .jobwork-row label:nth-of-type(4) {
+        grid-column: 3;
+        grid-row: 2;
+      }
+
+      .jobwork-row .job-remove {
+        grid-column: 4;
+        grid-row: 2;
+      }
+
+      .jobwork-row input,
+      .jobwork-row select {
+        padding: 0 7px;
+        font-size: 0.78rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="eyebrow">BoxCostCal</span>
+        <h1>Corrugated box cost calculator</h1>
+        <p class="subtitle">Live one-box cost from blank area, board GSM, paper rates, waste, glue, and editable jobwork.</p>
+      </div>
+      <div class="top-actions">
+        <button class="ghost-button" id="resetButton" type="button">Reset</button>
+        <button class="primary-button" id="sampleButton" type="button">Load 5 ply carton</button>
+      </div>
+    </header>
+
+    <section class="workspace" aria-label="Corrugated box calculator">
+      <form class="panel" id="calculator" autocomplete="off">
+        <div class="panel-header">
+          <h2 class="panel-title">Box</h2>
+          <p class="panel-note">Indian box type, size, and saved presets</p>
+        </div>
+        <div class="panel-body">
+          <div class="field-group">
+            <p class="group-label">Box type</p>
+            <label>
+              Common Indian box
+              <select id="boxTemplate">
+                <option value="custom">Custom / manual</option>
+                <option value="smallEcom">3 ply small ecommerce carton - 9 x 6 x 3 in</option>
+                <option value="mediumEcom">3 ply medium courier carton - 12 x 9 x 4 in</option>
+                <option value="shoeBox">3 ply shoe / apparel box - 13 x 8 x 5 in</option>
+                <option value="groceryCarton">5 ply grocery / FMCG carton - 15 x 12 x 10 in</option>
+                <option value="heavyShipping">5 ply heavy shipping carton - 18 x 12 x 12 in</option>
+                <option value="exportCarton">7 ply export carton - 24 x 18 x 18 in</option>
+                <option value="pizzaBox">3 ply pizza / food mailer - 12 x 12 x 2 in</option>
+                <option value="fruitTray">5 ply fruit / vegetable tray - 20 x 12 x 5 in</option>
+                <option value="applianceCarton">7 ply appliance carton - 30 x 20 x 24 in</option>
+              </select>
+            </label>
+            <label>
+              Construction
+              <select id="style">
+                <option value="rsc">Regular slotted carton</option>
+                <option value="hsc">Half slotted carton</option>
+                <option value="fol">Full overlap carton</option>
+                <option value="tray">Tray / top open box</option>
+                <option value="mailer">Die-cut ecommerce mailer</option>
+                <option value="sleeve">Sleeve / wraparound</option>
+              </select>
+            </label>
+            <div class="segmented" role="group" aria-label="Dimension unit">
+              <button class="active" data-unit="mm" type="button">mm</button>
+              <button data-unit="cm" type="button">cm</button>
+              <button data-unit="in" type="button">inch</button>
+            </div>
+            <div class="grid-3">
+              <label>
+                Length
+                <input id="length" type="number" min="1" step="1" value="300">
+              </label>
+              <label>
+                Width
+                <input id="width" type="number" min="1" step="1" value="200">
+              </label>
+              <label>
+                Height
+                <input id="height" type="number" min="1" step="1" value="150">
+              </label>
+            </div>
+            <div class="grid-3">
+              <label>
+                Costing qty
+                <input id="quantity" type="number" min="1" step="1" value="1000">
+              </label>
+              <label>
+                Glue tab mm
+                <input id="glueTab" type="number" min="0" step="1" value="35">
+              </label>
+              <label>
+                Trim per edge mm
+                <input id="trim" type="number" min="0" step="1" value="20">
+              </label>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <p class="group-label">Saved box types</p>
+            <div class="save-grid">
+              <label>
+                Saved box
+                <select id="savedBoxSelect">
+                  <option value="">No saved boxes yet</option>
+                </select>
+              </label>
+              <button class="ghost-button" id="loadSavedBox" type="button">Load</button>
+              <button class="ghost-button" id="deleteSavedBox" type="button">Delete</button>
+            </div>
+            <div class="save-row">
+              <label>
+                Save name
+                <input id="saveBoxName" type="text" placeholder="Example: 5 ply 18x12x12">
+              </label>
+              <button class="primary-button" id="saveBoxType" type="button">Save box type</button>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <p class="group-label">Board</p>
+            <label>
+              Board preset
+              <select id="preset">
+                <option value="standard">Standard 3 ply C</option>
+                <option value="economy">Economy 3 ply B</option>
+                <option value="premium">Premium white 3 ply E</option>
+                <option value="heavy">Heavy 5 ply BC</option>
+                <option value="triple">Export 7 ply BCB</option>
+                <option value="custom">Custom</option>
+              </select>
+            </label>
+            <div class="segmented" role="group" aria-label="Wall construction">
+              <button class="active" data-wall="single" type="button">3 ply</button>
+              <button data-wall="double" type="button">5 ply</button>
+              <button data-wall="triple" type="button">7 ply</button>
+            </div>
+            <div class="layer-row">
+              <label>
+                Outer liner gsm
+                <input id="outerGsm" type="number" min="1" step="1" value="140">
+              </label>
+              <label>
+                Rate/kg
+                <input id="outerRate" type="number" min="0" step="0.1" value="48">
+              </label>
+            </div>
+            <div class="layer-row">
+              <label>
+                Medium 1 gsm
+                <input id="medium1Gsm" type="number" min="1" step="1" value="120">
+              </label>
+              <label>
+                Rate/kg
+                <input id="medium1Rate" type="number" min="0" step="0.1" value="42">
+              </label>
+              <label>
+                Flute 1
+                <select id="flute1">
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C" selected>C</option>
+                  <option value="E">E</option>
+                  <option value="F">F</option>
+                </select>
+              </label>
+            </div>
+            <div class="layer-row optional-row" id="middle1Row" data-hidden="true">
+              <label>
+                Middle liner gsm
+                <input id="middle1Gsm" type="number" min="1" step="1" value="150">
+              </label>
+              <label>
+                Rate/kg
+                <input id="middle1Rate" type="number" min="0" step="0.1" value="46">
+              </label>
+            </div>
+            <div class="layer-row optional-row" id="medium2Row" data-hidden="true">
+              <label>
+                Medium 2 gsm
+                <input id="medium2Gsm" type="number" min="1" step="1" value="150">
+              </label>
+              <label>
+                Rate/kg
+                <input id="medium2Rate" type="number" min="0" step="0.1" value="45">
+              </label>
+              <label>
+                Flute 2
+                <select id="flute2">
+                  <option value="A">A</option>
+                  <option value="B" selected>B</option>
+                  <option value="C">C</option>
+                  <option value="E">E</option>
+                  <option value="F">F</option>
+                </select>
+              </label>
+            </div>
+            <div class="layer-row optional-row" id="middle2Row" data-hidden="true">
+              <label>
+                Second middle liner gsm
+                <input id="middle2Gsm" type="number" min="1" step="1" value="150">
+              </label>
+              <label>
+                Rate/kg
+                <input id="middle2Rate" type="number" min="0" step="0.1" value="46">
+              </label>
+            </div>
+            <div class="layer-row optional-row" id="medium3Row" data-hidden="true">
+              <label>
+                Medium 3 gsm
+                <input id="medium3Gsm" type="number" min="1" step="1" value="150">
+              </label>
+              <label>
+                Rate/kg
+                <input id="medium3Rate" type="number" min="0" step="0.1" value="45">
+              </label>
+              <label>
+                Flute 3
+                <select id="flute3">
+                  <option value="A">A</option>
+                  <option value="B" selected>B</option>
+                  <option value="C">C</option>
+                  <option value="E">E</option>
+                  <option value="F">F</option>
+                </select>
+              </label>
+            </div>
+            <div class="layer-row" id="innerRow">
+              <label>
+                Inner liner gsm
+                <input id="innerGsm" type="number" min="1" step="1" value="140">
+              </label>
+              <label>
+                Rate/kg
+                <input id="innerRate" type="number" min="0" step="0.1" value="48">
+              </label>
+              <label>
+                Waste %
+                <input id="waste" type="number" min="0" step="0.1" value="8">
+              </label>
+            </div>
+            <div class="grid-2">
+              <label>
+                Glue gsm/layer
+                <input id="glueGsm" type="number" min="0" step="0.1" value="5.5">
+              </label>
+              <label>
+                Glue rate/kg
+                <input id="glueRate" type="number" min="0" step="0.1" value="55">
+              </label>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">Jobwork</h2>
+          <p class="panel-note">Pasting, die cutting, labor, and extras</p>
+        </div>
+        <div class="panel-body">
+          <div class="field-group">
+            <p class="group-label">Cost adders</p>
+            <div class="jobwork-toolbar">
+              <button class="ghost-button small-button" id="addJobwork" type="button">Add custom row</button>
+            </div>
+            <div class="jobwork-list" id="jobworkList"></div>
+          </div>
+
+          <div class="preview">
+            <div class="diagram-shell" aria-label="Flat blank preview">
+              <svg id="blankSvg" viewBox="0 0 430 250" role="img" aria-labelledby="diagramTitle">
+                <title id="diagramTitle">Corrugated flat blank preview</title>
+                <rect class="sheet" x="25" y="55" width="380" height="130" rx="4"></rect>
+                <line class="score" x1="97" y1="55" x2="97" y2="185"></line>
+                <line class="score" x1="185" y1="55" x2="185" y2="185"></line>
+                <line class="score" x1="257" y1="55" x2="257" y2="185"></line>
+                <line class="score" x1="345" y1="55" x2="345" y2="185"></line>
+                <line class="score" x1="25" y1="91" x2="405" y2="91"></line>
+                <line class="score" x1="25" y1="149" x2="405" y2="149"></line>
+                <rect class="ink-mark" x="191" y="101" width="58" height="38" rx="3"></rect>
+                <text class="diagram-label" id="diagramStyle" x="25" y="35">Regular slotted carton</text>
+                <text class="diagram-label" id="diagramSize" x="25" y="222">Blank 0 x 0 mm</text>
+                <text class="diagram-label" id="diagramArea" x="250" y="222">Area 0.000 m2</text>
+              </svg>
+            </div>
+            <div class="spec-strip">
+              <div class="spec-tile">
+                <span>Blank sheet</span>
+                <strong id="blankMetric">0 x 0 mm</strong>
+              </div>
+              <div class="spec-tile">
+                <span>Board GSM</span>
+                <strong id="gsmMetric">0 gsm</strong>
+              </div>
+              <div class="spec-tile">
+                <span>Box weight</span>
+                <strong id="weightMetric">0 g</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel quote-panel" aria-live="polite">
+        <div class="panel-header">
+          <h2 class="panel-title">Cost</h2>
+          <p class="panel-note" id="quoteSubhead">1 box cost</p>
+        </div>
+        <div class="panel-body">
+          <div class="price-stack">
+            <div class="price-main">
+              <p class="price-label">Cost per box</p>
+              <p class="price-value" id="sellingPrice">Rs 0.00</p>
+            </div>
+            <div class="metric">
+              <span>Paper + glue</span>
+              <strong id="factoryCost">Rs 0.00</strong>
+            </div>
+            <div class="metric">
+              <span>Jobwork</span>
+              <strong id="orderTotal">Rs 0</strong>
+            </div>
+            <div class="metric">
+              <span>Blank area</span>
+              <strong id="materialCost">Rs 0.00</strong>
+            </div>
+            <div class="metric">
+              <span>Fixed per box</span>
+              <strong id="fixedCost">Rs 0.00</strong>
+            </div>
+          </div>
+
+          <div class="breakdown" id="breakdown"></div>
+
+          <div class="audit" id="audit"></div>
+        </div>
+      </aside>
+    </section>
+
+    <p class="footer-line">Use the final die-line, machine deckle, current paper rates, and tested strength grade before production.</p>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    const storageKeys = {
+      current: "boxcostcal.current.v2",
+      saved: "boxcostcal.savedBoxes.v2"
+    };
+
+    const state = {
+      unit: "mm",
+      wall: "single"
+    };
+
+    let isRestoring = false;
+    let booted = false;
+
+    const units = {
+      mm: 1,
+      cm: 10,
+      in: 25.4
+    };
+
+    const fluteTakeUp = {
+      A: 1.525,
+      B: 1.325,
+      C: 1.425,
+      E: 1.275,
+      F: 1.2
+    };
+
+    const styles = {
+      rsc: {
+        label: "Regular slotted carton",
+        complexity: 1,
+        operation: 0,
+        setup: 900,
+        tooling: 0,
+        blank: (l, w, h, glue) => ({
+          x: 2 * (l + w) + glue,
+          y: h + w,
+          multiplier: 1
+        })
+      },
+      hsc: {
+        label: "Half slotted carton",
+        complexity: 0.82,
+        operation: -0.2,
+        setup: 850,
+        tooling: 0,
+        blank: (l, w, h, glue) => ({
+          x: 2 * (l + w) + glue,
+          y: h + w / 2,
+          multiplier: 1
+        })
+      },
+      fol: {
+        label: "Full overlap carton",
+        complexity: 1.22,
+        operation: 0.75,
+        setup: 1100,
+        tooling: 0,
+        blank: (l, w, h, glue) => ({
+          x: 2 * (l + w) + glue,
+          y: h + 2 * w,
+          multiplier: 1
+        })
+      },
+      tray: {
+        label: "Tray / top open box",
+        complexity: 1.08,
+        operation: 0.9,
+        setup: 1400,
+        tooling: 1800,
+        blank: (l, w, h) => ({
+          x: l + 2 * h,
+          y: w + 2 * h,
+          multiplier: 1.04
+        })
+      },
+      mailer: {
+        label: "Die-cut ecommerce mailer",
+        complexity: 1.34,
+        operation: 1.8,
+        setup: 2300,
+        tooling: 6500,
+        blank: (l, w, h) => ({
+          x: l + 2 * h + 60,
+          y: w + 2 * h + 70,
+          multiplier: 1.18
+        })
+      },
+      sleeve: {
+        label: "Sleeve / wraparound",
+        complexity: 0.74,
+        operation: -0.35,
+        setup: 800,
+        tooling: 0,
+        blank: (l, w, h, glue) => ({
+          x: 2 * (l + h) + glue,
+          y: w,
+          multiplier: 1
+        })
+      }
+    };
+
+    const boxTemplates = {
+      smallEcom: {
+        name: "3 ply small ecommerce carton",
+        style: "rsc",
+        unit: "mm",
+        length: 229,
+        width: 152,
+        height: 76,
+        quantity: 1000,
+        glueTab: 30,
+        trim: 15,
+        preset: "economy",
+        jobwork: [
+          ["Corrugation jobwork", true, "perM2", 4.2],
+          ["Slotting / creasing", true, "perBox", 0.55],
+          ["Pasting / gluing", true, "perBox", 0.45],
+          ["Packing / bundling", true, "perBox", 0.35]
+        ]
+      },
+      mediumEcom: {
+        name: "3 ply medium courier carton",
+        style: "rsc",
+        unit: "mm",
+        length: 305,
+        width: 229,
+        height: 102,
+        quantity: 1000,
+        glueTab: 35,
+        trim: 18,
+        preset: "standard",
+        jobwork: [
+          ["Corrugation jobwork", true, "perM2", 4.5],
+          ["Slotting / creasing", true, "perBox", 0.75],
+          ["Pasting / gluing", true, "perBox", 0.55],
+          ["Packing / bundling", true, "perBox", 0.45]
+        ]
+      },
+      shoeBox: {
+        name: "3 ply shoe / apparel box",
+        style: "mailer",
+        unit: "mm",
+        length: 330,
+        width: 203,
+        height: 127,
+        quantity: 500,
+        glueTab: 30,
+        trim: 18,
+        preset: "premium",
+        jobwork: [
+          ["Corrugation jobwork", true, "perM2", 4.8],
+          ["Die cutting", true, "perBox", 1.25],
+          ["Pasting / gluing", true, "perBox", 0.65],
+          ["Die / plate / setup", true, "fixed", 3500],
+          ["Packing / bundling", true, "perBox", 0.55]
+        ]
+      },
+      groceryCarton: {
+        name: "5 ply grocery / FMCG carton",
+        style: "rsc",
+        unit: "mm",
+        length: 381,
+        width: 305,
+        height: 254,
+        quantity: 1000,
+        glueTab: 38,
+        trim: 20,
+        preset: "heavy",
+        jobwork: [
+          ["Corrugation jobwork", true, "perM2", 5.2],
+          ["Slotting / creasing", true, "perBox", 1.1],
+          ["Pasting / gluing", true, "perBox", 0.75],
+          ["Stitching", false, "perBox", 0],
+          ["Packing / bundling", true, "perBox", 0.65]
+        ]
+      },
+      heavyShipping: {
+        name: "5 ply heavy shipping carton",
+        style: "fol",
+        unit: "mm",
+        length: 457,
+        width: 305,
+        height: 305,
+        quantity: 500,
+        glueTab: 40,
+        trim: 24,
+        preset: "heavy",
+        jobwork: [
+          ["Corrugation jobwork", true, "perM2", 5.5],
+          ["Slotting / creasing", true, "perBox", 1.25],
+          ["Pasting / gluing", true, "perBox", 0.85],
+          ["Manual labor", true, "perBox", 0.65],
+          ["Packing / bundling", true, "perBox", 0.75]
+        ]
+      },
+      exportCarton: {
+        name: "7 ply export carton",
+        style: "fol",
+        unit: "mm",
+        length: 610,
+        width: 457,
+        height: 457,
+        quantity: 300,
+        glueTab: 45,
+        trim: 28,
+        preset: "triple",
+        jobwork: [
+          ["Corrugation jobwork", true, "perM2", 6.5],
+          ["Slotting / creasing", true, "perBox", 1.8],
+          ["Pasting / gluing", true, "perBox", 1.2],
+          ["Stitching", true, "perBox", 1.1],
+          ["Manual labor", true, "perBox", 1.0],
+          ["Packing / bundling", true, "perBox", 1.0]
+        ]
+      },
+      pizzaBox: {
+        name: "3 ply pizza / food mailer",
+        style: "mailer",
+        unit: "mm",
+        length: 305,
+        width: 305,
+        height: 51,
+        quantity: 1000,
+        glueTab: 25,
+        trim: 16,
+        preset: "premium",
+        jobwork: [
+          ["Corrugation jobwork", true, "perM2", 4.8],
+          ["Die cutting", true, "perBox", 0.9],
+          ["Pasting / gluing", true, "perBox", 0.35],
+          ["Printing", false, "perBox", 0],
+          ["Die / plate / setup", true, "fixed", 2500],
+          ["Packing / bundling", true, "perBox", 0.45]
+        ]
+      },
+      fruitTray: {
+        name: "5 ply fruit / vegetable tray",
+        style: "tray",
+        unit: "mm",
+        length: 508,
+        width: 305,
+        height: 127,
+        quantity: 500,
+        glueTab: 30,
+        trim: 22,
+        preset: "heavy",
+        jobwork: [
+          ["Corrugation jobwork", true, "perM2", 5.5],
+          ["Die cutting", true, "perBox", 1.35],
+          ["Manual labor", true, "perBox", 0.8],
+          ["Die / plate / setup", true, "fixed", 3000],
+          ["Packing / bundling", true, "perBox", 0.6]
+        ]
+      },
+      applianceCarton: {
+        name: "7 ply appliance carton",
+        style: "rsc",
+        unit: "mm",
+        length: 762,
+        width: 508,
+        height: 610,
+        quantity: 200,
+        glueTab: 50,
+        trim: 30,
+        preset: "triple",
+        jobwork: [
+          ["Corrugation jobwork", true, "perM2", 7],
+          ["Slotting / creasing", true, "perBox", 2.2],
+          ["Stitching", true, "perBox", 1.6],
+          ["Manual labor", true, "perBox", 1.4],
+          ["Packing / bundling", true, "perBox", 1.2]
+        ]
+      }
+    };
+
+    const presets = {
+      economy: {
+        wall: "single",
+        outerGsm: 120,
+        medium1Gsm: 100,
+        innerGsm: 120,
+        flute1: "B",
+        waste: 7,
+        outerRate: 44,
+        medium1Rate: 39,
+        innerRate: 44
+      },
+      standard: {
+        wall: "single",
+        outerGsm: 140,
+        medium1Gsm: 120,
+        innerGsm: 140,
+        flute1: "C",
+        waste: 8,
+        outerRate: 48,
+        medium1Rate: 42,
+        innerRate: 48
+      },
+      premium: {
+        wall: "single",
+        outerGsm: 180,
+        medium1Gsm: 120,
+        innerGsm: 140,
+        flute1: "E",
+        waste: 8.5,
+        outerRate: 58,
+        medium1Rate: 43,
+        innerRate: 48
+      },
+      heavy: {
+        wall: "double",
+        outerGsm: 200,
+        medium1Gsm: 150,
+        middle1Gsm: 150,
+        medium2Gsm: 150,
+        innerGsm: 200,
+        flute1: "C",
+        flute2: "B",
+        waste: 10,
+        outerRate: 52,
+        medium1Rate: 45,
+        middle1Rate: 48,
+        medium2Rate: 45,
+        innerRate: 52
+      },
+      triple: {
+        wall: "triple",
+        outerGsm: 220,
+        medium1Gsm: 160,
+        middle1Gsm: 180,
+        medium2Gsm: 160,
+        middle2Gsm: 180,
+        medium3Gsm: 160,
+        innerGsm: 220,
+        flute1: "B",
+        flute2: "C",
+        flute3: "B",
+        waste: 12,
+        outerRate: 55,
+        medium1Rate: 46,
+        middle1Rate: 50,
+        medium2Rate: 46,
+        middle2Rate: 50,
+        medium3Rate: 46,
+        innerRate: 55
+      }
+    };
+
+    const defaultJobworkRows = [
+      { name: "Corrugation jobwork", basis: "perM2", rate: 4.5, enabled: true },
+      { name: "Slotting / creasing", basis: "perBox", rate: 0.8, enabled: true },
+      { name: "Pasting / gluing", basis: "perBox", rate: 0.6, enabled: true },
+      { name: "Die cutting", basis: "perBox", rate: 0, enabled: false },
+      { name: "Stitching", basis: "perBox", rate: 0, enabled: false },
+      { name: "Printing", basis: "perBox", rate: 0, enabled: false },
+      { name: "Lamination / coating", basis: "perM2", rate: 0, enabled: false },
+      { name: "Manual labor", basis: "perBox", rate: 0, enabled: false },
+      { name: "Packing / bundling", basis: "perBox", rate: 0.5, enabled: true },
+      { name: "Die / plate / setup", basis: "fixed", rate: 0, enabled: false },
+      { name: "Local freight", basis: "fixed", rate: 0, enabled: false },
+      { name: "Other jobwork", basis: "perBox", rate: 0, enabled: false }
+    ];
+
+    let jobworkRows = [];
+    let nextJobworkId = 1;
+
+    const fields = [
+      "boxTemplate", "style", "length", "width", "height", "quantity", "glueTab", "trim",
+      "preset", "outerGsm", "outerRate", "medium1Gsm", "medium1Rate",
+      "innerGsm", "innerRate", "glueGsm", "middle1Gsm", "middle1Rate",
+      "flute1", "flute2", "medium2Gsm", "medium2Rate", "glueRate", "waste",
+      "middle2Gsm", "middle2Rate", "medium3Gsm", "medium3Rate", "flute3"
+    ];
+
+    function number(id) {
+      const value = parseFloat($(id).value);
+      return Number.isFinite(value) ? value : 0;
+    }
+
+    function money(value, digits = 2) {
+      return `Rs ${value.toLocaleString("en-IN", {
+        minimumFractionDigits: digits,
+        maximumFractionDigits: digits
+      })}`;
+    }
+
+    function whole(value) {
+      return value.toLocaleString("en-IN", { maximumFractionDigits: 0 });
+    }
+
+    function setWall(wall) {
+      state.wall = wall;
+      document.querySelectorAll("[data-wall]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.wall === wall);
+      });
+
+      const isDouble = wall === "double" || wall === "triple";
+      const isTriple = wall === "triple";
+      $("middle1Row").dataset.hidden = String(!isDouble);
+      $("medium2Row").dataset.hidden = String(!isDouble);
+      $("middle2Row").dataset.hidden = String(!isTriple);
+      $("medium3Row").dataset.hidden = String(!isTriple);
+      calculate();
+    }
+
+    function setRawUnit(unit) {
+      state.unit = unit;
+      document.querySelectorAll("[data-unit]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.unit === unit);
+      });
+    }
+
+    function setUnit(unit) {
+      if (unit === state.unit) return;
+      const oldFactor = units[state.unit];
+      const newFactor = units[unit];
+      ["length", "width", "height"].forEach((id) => {
+        const mm = number(id) * oldFactor;
+        const converted = mm / newFactor;
+        $(id).value = unit === "in" ? converted.toFixed(2) : Math.round(converted);
+      });
+      setRawUnit(unit);
+      markManualBox();
+      calculate();
+    }
+
+    function applyPreset(name) {
+      if (name === "custom") return;
+      const preset = presets[name];
+      Object.entries(preset).forEach(([key, value]) => {
+        if (key === "wall") return;
+        if ($(key)) $(key).value = value;
+      });
+      $("waste").value = preset.waste;
+      setWall(preset.wall);
+    }
+
+    function applyTemplate(key) {
+      if (key === "custom") {
+        calculate();
+        return;
+      }
+
+      const template = boxTemplates[key];
+      if (!template) return;
+
+      const wasRestoring = isRestoring;
+      isRestoring = true;
+      setRawUnit(template.unit || "mm");
+      $("boxTemplate").value = key;
+      $("style").value = template.style;
+      $("length").value = template.length;
+      $("width").value = template.width;
+      $("height").value = template.height;
+      $("quantity").value = template.quantity;
+      $("glueTab").value = template.glueTab;
+      $("trim").value = template.trim;
+      $("preset").value = template.preset;
+      applyPreset(template.preset);
+      resetJobworkRows();
+      applyJobworkOverrides(template.jobwork || []);
+      $("saveBoxName").value = template.name;
+      renderJobworkRows();
+      isRestoring = wasRestoring;
+      calculate();
+    }
+
+    function applyJobworkOverrides(overrides) {
+      overrides.forEach(([name, enabled, basis, rate]) => {
+        const row = jobworkRows.find((item) => item.name === name);
+        if (!row) return;
+        row.enabled = enabled;
+        row.basis = basis;
+        row.rate = rate;
+      });
+    }
+
+    function applyStyleDefaults(styleKey) {
+      if (styleKey === "mailer" || styleKey === "tray") {
+        const dieRow = jobworkRows.find((row) => row.name === "Die cutting");
+        if (dieRow && dieRow.rate === 0) {
+          dieRow.enabled = true;
+          dieRow.rate = styleKey === "mailer" ? 2.25 : 1.2;
+        }
+        const setupRow = jobworkRows.find((row) => row.name === "Die / plate / setup");
+        if (setupRow && setupRow.rate === 0) {
+          setupRow.enabled = true;
+          setupRow.rate = styles[styleKey].tooling || 0;
+        }
+        renderJobworkRows();
+      }
+      calculate();
+    }
+
+    function markManualBox() {
+      if (isRestoring || !booted) return;
+      $("boxTemplate").value = "custom";
+    }
+
+    function resetJobworkRows() {
+      nextJobworkId = 1;
+      jobworkRows = defaultJobworkRows.map((row) => ({
+        ...row,
+        id: nextJobworkId++,
+        custom: false
+      }));
+      renderJobworkRows();
+    }
+
+    function addJobworkRow(row = {}) {
+      markManualBox();
+      jobworkRows.push({
+        id: nextJobworkId++,
+        name: row.name || "Custom jobwork",
+        basis: row.basis || "perBox",
+        rate: row.rate ?? 0,
+        enabled: row.enabled ?? true,
+        custom: true
+      });
+      renderJobworkRows();
+      calculate();
+    }
+
+    function renderJobworkRows() {
+      $("jobworkList").innerHTML = jobworkRows.map((row) => `
+        <div class="jobwork-row" data-job-id="${row.id}">
+          <label class="jobwork-toggle" aria-label="Enable ${row.name}">
+            <input class="job-enabled" type="checkbox" ${row.enabled ? "checked" : ""}>
+          </label>
+          <label>
+            Item
+            <input class="job-name" type="text" value="${escapeHtml(row.name)}">
+          </label>
+          <label>
+            Basis
+            <select class="job-basis">
+              <option value="perBox" ${row.basis === "perBox" ? "selected" : ""}>Rs/box</option>
+              <option value="perM2" ${row.basis === "perM2" ? "selected" : ""}>Rs/m2</option>
+              <option value="perKg" ${row.basis === "perKg" ? "selected" : ""}>Rs/kg</option>
+              <option value="fixed" ${row.basis === "fixed" ? "selected" : ""}>Fixed Rs</option>
+            </select>
+          </label>
+          <label>
+            Rate
+            <input class="job-rate" type="number" min="0" step="0.01" value="${row.rate}">
+          </label>
+          <button class="icon-button job-remove" type="button" aria-label="Remove ${row.name}" ${row.custom ? "" : "disabled"}>${row.custom ? "x" : ""}</button>
+        </div>
+      `).join("");
+
+      document.querySelectorAll(".jobwork-row").forEach((rowEl) => {
+        const id = Number(rowEl.dataset.jobId);
+        const row = jobworkRows.find((item) => item.id === id);
+        rowEl.querySelector(".job-enabled").addEventListener("change", (event) => {
+          markManualBox();
+          row.enabled = event.target.checked;
+          calculate();
+        });
+        rowEl.querySelector(".job-name").addEventListener("input", (event) => {
+          markManualBox();
+          row.name = event.target.value;
+          calculate();
+        });
+        rowEl.querySelector(".job-basis").addEventListener("change", (event) => {
+          markManualBox();
+          row.basis = event.target.value;
+          calculate();
+        });
+        rowEl.querySelector(".job-rate").addEventListener("input", (event) => {
+          markManualBox();
+          const value = parseFloat(event.target.value);
+          row.rate = Number.isFinite(value) ? value : 0;
+          calculate();
+        });
+        rowEl.querySelector(".job-remove").addEventListener("click", () => {
+          if (!row.custom) return;
+          markManualBox();
+          jobworkRows = jobworkRows.filter((item) => item.id !== id);
+          renderJobworkRows();
+          calculate();
+        });
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    function collectConfig() {
+      const values = {};
+      fields.forEach((id) => {
+        if ($(id)) values[id] = $(id).value;
+      });
+
+      return {
+        version: 2,
+        unit: state.unit,
+        wall: state.wall,
+        values,
+        jobworkRows: jobworkRows.map((row) => ({
+          name: row.name,
+          basis: row.basis,
+          rate: row.rate,
+          enabled: row.enabled,
+          custom: row.custom
+        }))
+      };
+    }
+
+    function applyConfig(config) {
+      if (!config || !config.values) return false;
+      isRestoring = true;
+      setRawUnit(config.unit || "mm");
+      Object.entries(config.values).forEach(([id, value]) => {
+        if ($(id)) $(id).value = value;
+      });
+
+      state.wall = config.wall || state.wall;
+      setWall(state.wall);
+      if (Array.isArray(config.jobworkRows)) {
+        nextJobworkId = 1;
+        jobworkRows = config.jobworkRows.map((row) => ({
+          id: nextJobworkId++,
+          name: row.name || "Custom jobwork",
+          basis: row.basis || "perBox",
+          rate: Number(row.rate) || 0,
+          enabled: Boolean(row.enabled),
+          custom: Boolean(row.custom)
+        }));
+        renderJobworkRows();
+      }
+      isRestoring = false;
+      calculate();
+      return true;
+    }
+
+    function persistCurrent() {
+      if (!booted || isRestoring) return;
+      try {
+        localStorage.setItem(storageKeys.current, JSON.stringify(collectConfig()));
+      } catch (error) {
+        console.warn("Could not save current box state", error);
+      }
+    }
+
+    function loadCurrent() {
+      try {
+        const raw = localStorage.getItem(storageKeys.current);
+        return raw ? applyConfig(JSON.parse(raw)) : false;
+      } catch (error) {
+        console.warn("Could not load saved box state", error);
+        return false;
+      }
+    }
+
+    function readSavedBoxes() {
+      try {
+        const raw = localStorage.getItem(storageKeys.saved);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        console.warn("Could not read saved box types", error);
+        return [];
+      }
+    }
+
+    function writeSavedBoxes(boxes) {
+      try {
+        localStorage.setItem(storageKeys.saved, JSON.stringify(boxes));
+      } catch (error) {
+        console.warn("Could not save box types", error);
+      }
+    }
+
+    function updateSavedBoxSelect(selectedId = $("savedBoxSelect").value) {
+      const boxes = readSavedBoxes();
+      $("savedBoxSelect").innerHTML = boxes.length
+        ? boxes.map((box) => `<option value="${box.id}">${escapeHtml(box.name)}</option>`).join("")
+        : `<option value="">No saved boxes yet</option>`;
+      if (selectedId && boxes.some((box) => box.id === selectedId)) {
+        $("savedBoxSelect").value = selectedId;
+      }
+    }
+
+    function defaultBoxName() {
+      const style = styles[$("style").value]?.label || "Box";
+      return `${style} ${$("length").value}x${$("width").value}x${$("height").value} ${state.unit}`;
+    }
+
+    function saveBoxType() {
+      const name = $("saveBoxName").value.trim() || defaultBoxName();
+      const boxes = readSavedBoxes();
+      const existingId = $("savedBoxSelect").value;
+      const sameName = boxes.find((box) => box.name.toLowerCase() === name.toLowerCase());
+      const targetId = existingId || sameName?.id || String(Date.now());
+      const config = collectConfig();
+      config.values.boxTemplate = "custom";
+
+      const nextBox = {
+        id: targetId,
+        name,
+        savedAt: new Date().toISOString(),
+        config
+      };
+      const nextBoxes = boxes.filter((box) => box.id !== targetId && box.name.toLowerCase() !== name.toLowerCase());
+      nextBoxes.push(nextBox);
+      nextBoxes.sort((a, b) => a.name.localeCompare(b.name));
+      writeSavedBoxes(nextBoxes);
+      updateSavedBoxSelect(targetId);
+      $("saveBoxName").value = name;
+      persistCurrent();
+    }
+
+    function loadSavedBoxType() {
+      const id = $("savedBoxSelect").value;
+      const box = readSavedBoxes().find((item) => item.id === id);
+      if (!box) return;
+      $("saveBoxName").value = box.name;
+      applyConfig(box.config);
+      $("boxTemplate").value = "custom";
+      persistCurrent();
+    }
+
+    function deleteSavedBoxType() {
+      const id = $("savedBoxSelect").value;
+      if (!id) return;
+      const nextBoxes = readSavedBoxes().filter((box) => box.id !== id);
+      writeSavedBoxes(nextBoxes);
+      updateSavedBoxSelect();
+      $("saveBoxName").value = "";
+      persistCurrent();
+    }
+
+    function dimensionsMm() {
+      const factor = units[state.unit];
+      return {
+        l: Math.max(1, number("length") * factor),
+        w: Math.max(1, number("width") * factor),
+        h: Math.max(1, number("height") * factor)
+      };
+    }
+
+    function blankArea() {
+      const { l, w, h } = dimensionsMm();
+      const style = styles[$("style").value];
+      const trim = Math.max(0, number("trim"));
+      const raw = style.blank(l, w, h, number("glueTab"));
+      const sheetX = raw.x + 2 * trim;
+      const sheetY = raw.y + 2 * trim;
+      const area = (sheetX / 1000) * (sheetY / 1000) * raw.multiplier;
+      return {
+        style,
+        rawX: raw.x,
+        rawY: raw.y,
+        sheetX,
+        sheetY,
+        area,
+        multiplier: raw.multiplier
+      };
+    }
+
+    function boardBuild(area) {
+      const waste = number("waste");
+      const grossArea = area * (1 + waste / 100);
+      const glueLayers = state.wall === "single" ? 2 : state.wall === "double" ? 4 : 6;
+      const liners = [
+        { gsm: number("outerGsm"), rate: number("outerRate") },
+        ...(state.wall === "double" || state.wall === "triple"
+          ? [{ gsm: number("middle1Gsm"), rate: number("middle1Rate") }]
+          : []),
+        ...(state.wall === "triple"
+          ? [{ gsm: number("middle2Gsm"), rate: number("middle2Rate") }]
+          : []),
+        { gsm: number("innerGsm"), rate: number("innerRate") }
+      ];
+      const mediums = [
+        { gsm: number("medium1Gsm"), flute: $("flute1").value, rate: number("medium1Rate") },
+        ...(state.wall === "double" || state.wall === "triple"
+          ? [{ gsm: number("medium2Gsm"), flute: $("flute2").value, rate: number("medium2Rate") }]
+          : []),
+        ...(state.wall === "triple"
+          ? [{ gsm: number("medium3Gsm"), flute: $("flute3").value, rate: number("medium3Rate") }]
+          : [])
+      ];
+      const linerGsm = liners.reduce((sum, layer) => sum + layer.gsm, 0);
+      const mediumGsm = mediums.reduce((sum, layer) => sum + layer.gsm * fluteTakeUp[layer.flute], 0);
+      const glueGsm = number("glueGsm") * glueLayers;
+      const boardGsm = linerGsm + mediumGsm + glueGsm;
+      const linerCost = liners.reduce((sum, layer) => {
+        return sum + grossArea * layer.gsm / 1000 * layer.rate;
+      }, 0);
+      const mediumCost = mediums.reduce((sum, layer) => {
+        return sum + grossArea * layer.gsm * fluteTakeUp[layer.flute] / 1000 * layer.rate;
+      }, 0);
+      const glueCost = grossArea * glueGsm / 1000 * number("glueRate");
+
+      return {
+        boardGsm,
+        grossArea,
+        waste,
+        netWeightKg: area * boardGsm / 1000,
+        grossWeightKg: grossArea * boardGsm / 1000,
+        linerCost,
+        mediumCost,
+        glueCost,
+        materialCost: linerCost + mediumCost + glueCost
+      };
+    }
+
+    function calculateJobwork(blank, board, qty) {
+      const rows = jobworkRows
+        .filter((row) => row.enabled && row.rate > 0)
+        .map((row) => {
+          let perBox = row.rate;
+          if (row.basis === "perM2") perBox = row.rate * blank.area;
+          if (row.basis === "perKg") perBox = row.rate * board.grossWeightKg;
+          if (row.basis === "fixed") perBox = row.rate / qty;
+          return { ...row, perBox };
+        });
+
+      return {
+        rows,
+        variablePerBox: rows
+          .filter((row) => row.basis !== "fixed")
+          .reduce((sum, row) => sum + row.perBox, 0),
+        fixedPerBox: rows
+          .filter((row) => row.basis === "fixed")
+          .reduce((sum, row) => sum + row.perBox, 0)
+      };
+    }
+
+    function calculate() {
+      const qty = Math.max(1, Math.round(number("quantity")));
+      const blank = blankArea();
+      const board = boardBuild(blank.area);
+      const jobwork = calculateJobwork(blank, board, qty);
+      const jobworkCost = jobwork.variablePerBox + jobwork.fixedPerBox;
+      const costPerBox = board.materialCost + jobworkCost;
+
+      $("sellingPrice").textContent = money(costPerBox);
+      $("factoryCost").textContent = money(board.materialCost);
+      $("orderTotal").textContent = money(jobworkCost);
+      $("materialCost").textContent = `${blank.area.toFixed(3)} m2`;
+      $("fixedCost").textContent = money(jobwork.fixedPerBox);
+      $("quoteSubhead").textContent = `per box from ${whole(qty)} qty`;
+      $("blankMetric").textContent = `${whole(blank.sheetX)} x ${whole(blank.sheetY)} mm`;
+      $("gsmMetric").textContent = `${whole(board.boardGsm)} gsm`;
+      $("weightMetric").textContent = `${whole(board.netWeightKg * 1000)} g`;
+      $("diagramStyle").textContent = blank.style.label;
+      $("diagramSize").textContent = `Blank ${whole(blank.sheetX)} x ${whole(blank.sheetY)} mm`;
+      $("diagramArea").textContent = `Area ${blank.area.toFixed(3)} m2`;
+
+      drawBreakdown([
+        { label: "Liners", value: board.linerCost, color: "#54b399" },
+        { label: "Mediums", value: board.mediumCost, color: "#f2a84a" },
+        { label: "Glue", value: board.glueCost, color: "#6fa8dc" },
+        { label: "Jobwork", value: jobwork.variablePerBox, color: "#c38d9e" },
+        { label: "Fixed jobs", value: jobwork.fixedPerBox, color: "#ef6f61" }
+      ], costPerBox);
+
+      drawAudit({ blank, board, qty, jobwork, costPerBox });
+      persistCurrent();
+    }
+
+    function drawBreakdown(rows, total) {
+      const max = Math.max(...rows.map((row) => row.value), 1);
+      $("breakdown").innerHTML = rows.map((row) => {
+        const share = total > 0 ? row.value / total * 100 : 0;
+        const width = row.value / max * 100;
+        return `
+          <div class="bar-row">
+            <div class="bar-head">
+              <span>${row.label}</span>
+              <span>${money(row.value)} / ${share.toFixed(0)}%</span>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill" style="--w:${width.toFixed(1)}%; --c:${row.color}"></div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function drawAudit({ blank, board, qty, jobwork, costPerBox }) {
+      const items = [];
+      const materialShare = board.materialCost / Math.max(costPerBox, 1) * 100;
+
+      if (materialShare < 45 || materialShare > 85) {
+        items.push(["warn", `Material is ${materialShare.toFixed(0)}% of cost. Check paper rates, GSM, waste, and active jobwork rows.`]);
+      } else {
+        items.push(["ok", `Material sits at ${materialShare.toFixed(0)}% of one-box cost.`]);
+      }
+
+      if (jobwork.fixedPerBox > costPerBox * 0.22) {
+        items.push(["warn", `Fixed jobwork is high per box. Increase costing qty or split die/setup charges separately.`]);
+      } else {
+        items.push(["ok", `Fixed jobwork adds ${money(jobwork.fixedPerBox)} per box.`]);
+      }
+
+      if (blank.area > 1.2) {
+        items.push(["warn", `Large blank area: ${blank.area.toFixed(2)} m2. Confirm machine deckle and trim before production.`]);
+      } else {
+        items.push(["ok", `Blank area is ${blank.area.toFixed(3)} m2 per box including trim and style allowance.`]);
+      }
+
+      if (board.waste < 4) {
+        items.push(["bad", `Waste is only ${board.waste.toFixed(1)}%. Use this only when trim data is already proven.`]);
+      }
+
+      if (jobwork.rows.length === 0) {
+        items.push(["warn", `No jobwork is active. Add pasting, die cutting, labor, packing, or other charges if they apply.`]);
+      }
+
+      if (qty < 250) {
+        items.push(["warn", `Small costing qty. Fixed die, setup, or labor rows will become expensive per box.`]);
+      }
+
+      $("audit").innerHTML = items.slice(0, 5).map(([tone, text]) => `
+        <div class="audit-item">
+          <span class="dot ${tone === "ok" ? "" : tone}"></span>
+          <span>${text}</span>
+        </div>
+      `).join("");
+    }
+
+    function loadHeavySample() {
+      applyTemplate("heavyShipping");
+    }
+
+    function reset() {
+      applyTemplate("mediumEcom");
+    }
+
+    fields.forEach((id) => {
+      const el = $(id);
+      if (!el) return;
+      el.addEventListener("input", () => {
+        if (id !== "boxTemplate") markManualBox();
+        calculate();
+      });
+      el.addEventListener("change", () => {
+        if (id === "boxTemplate") {
+          applyTemplate(el.value);
+          return;
+        }
+        markManualBox();
+        if (id === "preset") applyPreset(el.value);
+        if (id === "style") applyStyleDefaults(el.value);
+        calculate();
+      });
+    });
+
+    document.querySelectorAll("[data-unit]").forEach((button) => {
+      button.addEventListener("click", () => setUnit(button.dataset.unit));
+    });
+
+    document.querySelectorAll("[data-wall]").forEach((button) => {
+      button.addEventListener("click", () => {
+        markManualBox();
+        $("preset").value = "custom";
+        setWall(button.dataset.wall);
+      });
+    });
+
+    $("sampleButton").addEventListener("click", loadHeavySample);
+    $("resetButton").addEventListener("click", reset);
+    $("addJobwork").addEventListener("click", () => addJobworkRow());
+    $("saveBoxType").addEventListener("click", saveBoxType);
+    $("loadSavedBox").addEventListener("click", loadSavedBoxType);
+    $("deleteSavedBox").addEventListener("click", deleteSavedBoxType);
+    $("savedBoxSelect").addEventListener("change", () => {
+      const box = readSavedBoxes().find((item) => item.id === $("savedBoxSelect").value);
+      $("saveBoxName").value = box?.name || "";
+    });
+
+    resetJobworkRows();
+    updateSavedBoxSelect();
+    if (!loadCurrent()) {
+      applyTemplate("mediumEcom");
+    }
+    booted = true;
+    calculate();
+  </script>
+</body>
+</html>
