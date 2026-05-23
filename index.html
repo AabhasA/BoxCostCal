@@ -1282,6 +1282,11 @@
       }
       const hasQty = isFinite(effectiveSheets) && effectiveSheets > 0;
       const jobQty = effectiveSheets; // alias kept for downstream code
+      // Wastage uplift: per-sheet rates are paid for every processed sheet
+      // (incl. waste), so cost-per-effective-sheet = base × totalSheets / effective.
+      const upliftFactor = (hasQty && isFinite(totalSheets) && totalSheets > 0)
+        ? totalSheets / effectiveSheets
+        : 1;
 
       let wSheet_g = NaN, wPack_kg = NaN, cPack = NaN, cSheet = NaN;
 
@@ -1338,21 +1343,24 @@
         ['total',        fmt(round2(prtTotal),    ' ₹')],
       ]);
 
-      // 2. Leaf — rate is ₹ per 100 sq.in, so /sheet = L × B × rate ÷ 100;
-      // total = max(per-sheet × total sheets, min)
+      // 2. Leaf — base rate = L × B × ₹ ÷ 100 (per processed sheet);
+      // total = max(base × totalSheets, min); /sheet displayed = total ÷ effective
       const leafL    = readNum($('leafL'));
       const leafB    = readNum($('leafB'));
       const leafRate = readNum($('leafRate'));
       const leafMin  = readNum($('leafMin'));
-      let leafPerSheet = NaN, leafTotal = NaN, leafFloored = false;
+      let leafBase = NaN, leafPerSheet = NaN, leafTotal = NaN, leafFloored = false;
       if (isFinite(leafL) && isFinite(leafB) && leafL > 0 && leafB > 0 &&
           isFinite(leafRate) && leafRate >= 0) {
-        leafPerSheet = (leafL * leafB * leafRate) / 100;
+        leafBase = (leafL * leafB * leafRate) / 100;
         if (hasQty) {
-          const calc = leafPerSheet * jobQty;
+          const calc = leafBase * totalSheets;
           const min  = isFinite(leafMin) ? leafMin : 0;
           leafTotal   = Math.max(calc, min);
           leafFloored = calc < min;
+          leafPerSheet = leafTotal / effectiveSheets;
+        } else {
+          leafPerSheet = leafBase; // no quantity yet → show base rate
         }
       }
       setFoot('leafFoot', [
@@ -1370,15 +1378,20 @@
       ]);
 
       // 4. UV Hybrid — 1 paisa (₹0.01) covers `uvCov` sq.in;
-      // /sheet ₹ = (L × W) ÷ uvCov ÷ 100
+      // base /sheet ₹ = (L × W) ÷ uvCov ÷ 100; total = base × totalSheets
       const uvL    = readNum($('uvL'));
       const uvW    = readNum($('uvW'));
       const uvCov  = readNum($('uvCov'));
-      let uvPerSheet = NaN, uvTotal = NaN;
+      let uvBase = NaN, uvPerSheet = NaN, uvTotal = NaN;
       if (isFinite(uvL) && isFinite(uvW) && isFinite(uvCov) &&
           uvL > 0 && uvW > 0 && uvCov > 0) {
-        uvPerSheet = (uvL * uvW) / (uvCov * 100);
-        if (hasQty) uvTotal = uvPerSheet * jobQty;
+        uvBase = (uvL * uvW) / (uvCov * 100);
+        if (hasQty) {
+          uvTotal = uvBase * totalSheets;
+          uvPerSheet = uvTotal / effectiveSheets;
+        } else {
+          uvPerSheet = uvBase;
+        }
       }
       setFoot('uvFoot', [
         ['cost / sheet', fmt(round2(uvPerSheet), ' ₹')],
@@ -1395,6 +1408,8 @@
       ]);
 
       // 6. Crystal · Matt · Screen — each shown per-sheet, plus group total
+      // Crystal & Matt are per-processed-sheet rates → uplift for display.
+      // Screen is flat → /sheet = flat ÷ effective.
       const crystRate  = readNum($('crystRate'));
       const screenCost = readNum($('screenCost'));
       const mattL      = readNum($('mattL'));
@@ -1403,14 +1418,22 @@
       let crystPerSheet = NaN, mattPerSheet = NaN, screenPerSheet = NaN;
       let crystTotal = NaN, mattTotal = NaN, screenTotal = NaN, crystGroup = NaN;
       if (isFinite(crystRate)) {
-        crystPerSheet = crystRate;
-        if (hasQty) crystTotal = crystRate * jobQty;
+        if (hasQty) {
+          crystTotal = crystRate * totalSheets;
+          crystPerSheet = crystTotal / effectiveSheets;
+        } else {
+          crystPerSheet = crystRate;
+        }
       }
       if (isFinite(mattL) && isFinite(mattB) && isFinite(mattCov) &&
           mattL > 0 && mattB > 0 && mattCov > 0) {
-        // Same model as UV Hybrid: 1 paisa covers `mattCov` sq.in
-        mattPerSheet = (mattL * mattB) / (mattCov * 100);
-        if (hasQty) mattTotal = mattPerSheet * jobQty;
+        const mattBase = (mattL * mattB) / (mattCov * 100);
+        if (hasQty) {
+          mattTotal = mattBase * totalSheets;
+          mattPerSheet = mattTotal / effectiveSheets;
+        } else {
+          mattPerSheet = mattBase;
+        }
       }
       if (isFinite(screenCost)) {
         screenTotal = screenCost;
@@ -1496,12 +1519,13 @@
       if (isFinite(corrL) && isFinite(corrW) && corrL > 0 && corrW > 0 && corrTotalGsm > 0) {
         corrWSheet_g = (corrL * corrW * corrTotalGsm) / 1540;
         if (isFinite(corrRollRate) && corrRollRate >= 0) {
-          const base = (corrWSheet_g / 1000) * corrRollRate;
-          corrCSheet = base * (1 + corrTaxPct / 100);
+          // base = per processed sheet (incl. tax). Display uplifts to per-effective.
+          const base = (corrWSheet_g / 1000) * corrRollRate * (1 + corrTaxPct / 100);
+          corrCSheet = base * upliftFactor;
         }
       }
 
-      // Pasting: cost/sheet = (L × W) ÷ factor; show 40×40 reference inline
+      // Pasting: base /sheet = max((L × W) ÷ factor, ₹1); show 40×40 ref inline.
       const factorEff = isFinite(pasteFactor) && pasteFactor > 0 ? pasteFactor : NaN;
       $('pasteRefHint').textContent = isFinite(factorEff)
         ? `(40 × 40 = ₹${(1600 / factorEff).toFixed(2)})`
@@ -1509,7 +1533,8 @@
       if (isFinite(corrL) && isFinite(corrW) && isFinite(factorEff) &&
           corrL > 0 && corrW > 0) {
         const raw = (corrL * corrW) / factorEff;
-        corrPasteSheet = Math.max(raw, 1); // ₹1/sheet minimum
+        const pasteBase = Math.max(raw, 1); // ₹1/sheet minimum on the base rate
+        corrPasteSheet = pasteBase * upliftFactor;
       }
 
       const corrParts = [corrCSheet, corrPasteSheet].filter(isFinite);
@@ -1533,45 +1558,62 @@
       const packCost       = readNum($('packCost'));
       const finishFreight  = readNum($('finishFreight'));
 
-      // 1. Die Cutting — direct ₹/sheet
-      const dieCutPerSheet = isFinite(dieCut) ? dieCut : NaN;
-      const dieCutTotal = (isFinite(dieCutPerSheet) && hasQty) ? dieCutPerSheet * effectiveSheets : NaN;
+      // All five finishing rates are per-processed-sheet inputs.
+      // Total = base × totalSheets; displayed /sheet = total ÷ effectiveSheets.
+
+      // 1. Die Cutting
+      let dieCutPerSheet = NaN, dieCutTotal = NaN;
+      if (isFinite(dieCut)) {
+        if (hasQty) { dieCutTotal = dieCut * totalSheets; dieCutPerSheet = dieCutTotal / effectiveSheets; }
+        else { dieCutPerSheet = dieCut; }
+      }
       setFoot('dieCutFoot', [
         ['cost / sheet', fmt(round2(dieCutPerSheet), ' ₹')],
         ['total',        fmt(round2(dieCutTotal),    ' ₹')],
       ]);
 
-      // 2. Side Pasting — rate × boxes per sheet
-      const sidePastePerSheet = isFinite(sidePaste) ? sidePaste * boxesPerSheet : NaN;
-      const sidePasteTotal = (isFinite(sidePastePerSheet) && hasQty) ? sidePastePerSheet * effectiveSheets : NaN;
+      // 2. Side Pasting — base /sheet = ₹/box × boxes/sheet
+      let sidePasteBase = NaN, sidePastePerSheet = NaN, sidePasteTotal = NaN;
+      if (isFinite(sidePaste)) {
+        sidePasteBase = sidePaste * boxesPerSheet;
+        if (hasQty) { sidePasteTotal = sidePasteBase * totalSheets; sidePastePerSheet = sidePasteTotal / effectiveSheets; }
+        else { sidePastePerSheet = sidePasteBase; }
+      }
       setFoot('sidePasteFoot', [
         ['rate × boxes', `${isFinite(sidePaste) ? round2(sidePaste) : '—'} × ${boxesPerSheet}`],
         ['cost / sheet', fmt(round2(sidePastePerSheet), ' ₹')],
         ['total',        fmt(round2(sidePasteTotal),    ' ₹')],
       ]);
 
-      // 3. Stitching — pins × ₹/pin = ₹/sheet
-      let stitchPerSheet = NaN;
+      // 3. Stitching — base /sheet = pins × ₹/pin
+      let stitchBase = NaN, stitchPerSheet = NaN, stitchTotal = NaN;
       if (isFinite(stitchPins) && isFinite(stitchPerPin) && stitchPins >= 0 && stitchPerPin >= 0) {
-        stitchPerSheet = stitchPins * stitchPerPin;
+        stitchBase = stitchPins * stitchPerPin;
+        if (hasQty) { stitchTotal = stitchBase * totalSheets; stitchPerSheet = stitchTotal / effectiveSheets; }
+        else { stitchPerSheet = stitchBase; }
       }
-      const stitchTotal = (isFinite(stitchPerSheet) && hasQty) ? stitchPerSheet * effectiveSheets : NaN;
       setFoot('stitchFoot', [
         ['cost / sheet', fmt(round2(stitchPerSheet), ' ₹')],
         ['total',        fmt(round2(stitchTotal),    ' ₹')],
       ]);
 
-      // 4. Packing — direct ₹/sheet
-      const packPerSheet = isFinite(packCost) ? packCost : NaN;
-      const packTotal = (isFinite(packPerSheet) && hasQty) ? packPerSheet * effectiveSheets : NaN;
+      // 4. Packing
+      let packPerSheet = NaN, packTotal = NaN;
+      if (isFinite(packCost)) {
+        if (hasQty) { packTotal = packCost * totalSheets; packPerSheet = packTotal / effectiveSheets; }
+        else { packPerSheet = packCost; }
+      }
       setFoot('packFoot', [
         ['cost / sheet', fmt(round2(packPerSheet), ' ₹')],
         ['total',        fmt(round2(packTotal),    ' ₹')],
       ]);
 
-      // 5. Freight — direct ₹/sheet (separate from Step 2's flat freight)
-      const finishFreightPerSheet = isFinite(finishFreight) ? finishFreight : NaN;
-      const finishFreightTotal = (isFinite(finishFreightPerSheet) && hasQty) ? finishFreightPerSheet * effectiveSheets : NaN;
+      // 5. Freight (per-sheet — separate from Step 2's flat freight)
+      let finishFreightPerSheet = NaN, finishFreightTotal = NaN;
+      if (isFinite(finishFreight)) {
+        if (hasQty) { finishFreightTotal = finishFreight * totalSheets; finishFreightPerSheet = finishFreightTotal / effectiveSheets; }
+        else { finishFreightPerSheet = finishFreight; }
+      }
       setFoot('finishFreightFoot', [
         ['cost / sheet', fmt(round2(finishFreightPerSheet), ' ₹')],
         ['total',        fmt(round2(finishFreightTotal),    ' ₹')],
