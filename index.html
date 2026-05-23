@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>BoxCostCal - Costing Sheet</title>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <style>
     :root {
       color-scheme: light;
@@ -291,6 +292,143 @@
     .module-status.fading { opacity: 0; }
     .module-status.err { color: var(--red); }
 
+    /* ===== Auth overlay ===== */
+    .auth-overlay {
+      position: fixed; inset: 0;
+      background: linear-gradient(180deg, rgba(255,253,248,0.96), rgba(244,241,234,0.98));
+      display: flex; align-items: center; justify-content: center;
+      z-index: 1000;
+    }
+    .auth-card {
+      width: min(360px, calc(100vw - 32px));
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 26px 24px;
+    }
+    .auth-card h2 { margin: 0 0 6px; font-size: 20px; }
+    .auth-card .sub { color: var(--muted); font-size: 13px; margin-bottom: 18px; }
+    .auth-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+    .auth-row label {
+      font-size: 11.5px; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.4px;
+    }
+    .auth-row input {
+      padding: 10px 12px; font-size: 15px;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px; background: var(--panel-strong);
+      outline: none;
+    }
+    .auth-row input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(23,107,91,0.12); }
+    .auth-btn {
+      width: 100%; padding: 11px 16px;
+      border: 1px solid var(--green); background: var(--green);
+      color: #fff; border-radius: 8px;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+    }
+    .auth-btn:hover { background: var(--green-dark); border-color: var(--green-dark); }
+    .auth-btn:disabled { opacity: 0.55; cursor: wait; }
+    .auth-err {
+      margin-top: 12px; font-size: 12.5px; color: var(--red);
+      min-height: 16px;
+    }
+
+    /* ===== Job bar (replaces module bar) ===== */
+    .job-bar {
+      display: flex; gap: 12px; align-items: center;
+      padding: 10px 14px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      font-size: 13px;
+    }
+    .job-bar .grp { display: flex; align-items: center; gap: 8px; }
+    .job-bar label {
+      font-size: 11px; text-transform: uppercase;
+      letter-spacing: 0.4px; color: var(--muted);
+    }
+    .job-bar input {
+      padding: 6px 10px; font-size: 13px;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px; background: var(--panel-strong);
+      min-width: 220px;
+      outline: none;
+    }
+    .job-bar input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(23,107,91,0.12); }
+    .job-bar button {
+      padding: 6px 12px;
+      border: 1px solid var(--green); background: var(--green);
+      color: #fff; border-radius: 6px;
+      font-size: 13px; font-weight: 500; cursor: pointer;
+    }
+    .job-bar button:hover { background: var(--green-dark); border-color: var(--green-dark); }
+    .job-bar button.ghost {
+      background: transparent; color: var(--muted);
+      border-color: var(--line-strong);
+    }
+    .job-bar button.ghost:hover { color: var(--ink); border-color: var(--muted); }
+    .job-bar .spacer { flex: 1; }
+    .job-bar .user-tag { font-size: 12.5px; color: var(--muted); }
+    .job-bar .user-tag b { color: var(--green-dark); font-weight: 600; }
+
+    /* ===== History panel ===== */
+    .history-panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+    }
+    .history-controls {
+      display: flex; gap: 8px; margin-bottom: 10px;
+    }
+    .history-controls input {
+      flex: 1; padding: 7px 10px; font-size: 13px;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px; background: var(--panel-strong);
+      outline: none;
+    }
+    .history-controls input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(23,107,91,0.12); }
+    .history-list {
+      max-height: 320px; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .history-empty {
+      padding: 24px 12px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .history-item {
+      display: grid;
+      grid-template-columns: 1fr auto auto auto;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    .history-item.current {
+      border-color: var(--green);
+      background: rgba(23,107,91,0.05);
+    }
+    .history-item .h-name { font-weight: 600; color: var(--ink); }
+    .history-item .h-meta { color: var(--muted); font-size: 12px; }
+    .history-item button {
+      padding: 4px 10px; font-size: 12px;
+      border-radius: 5px; cursor: pointer;
+      border: 1px solid var(--line-strong); background: var(--panel);
+      color: var(--ink);
+    }
+    .history-item button.h-load { border-color: var(--green); color: var(--green-dark); }
+    .history-item button.h-del  { border-color: var(--line-strong); color: var(--red); }
+    .history-item button:hover { background: rgba(0,0,0,0.04); }
+
     .inherited {
       display: flex;
       align-items: center;
@@ -323,29 +461,54 @@
   </style>
 </head>
 <body>
-  <div class="app">
+  <div class="auth-overlay" id="authOverlay">
+    <div class="auth-card">
+      <h2>BoxCostCal</h2>
+      <div class="sub">Sign in to access your saved quotes.</div>
+      <div class="auth-row">
+        <label for="authUser">Username</label>
+        <input id="authUser" type="text" autocomplete="username" placeholder="user1">
+      </div>
+      <div class="auth-row">
+        <label for="authPass">Password</label>
+        <input id="authPass" type="password" autocomplete="current-password" placeholder="••••••••">
+      </div>
+      <button id="authBtn" class="auth-btn">Sign in</button>
+      <div class="auth-err" id="authErr"></div>
+    </div>
+  </div>
+
+  <div class="app" id="mainApp" style="display: none;">
     <header class="top">
       <h1>Costing Sheet</h1>
       <div class="sub">Step-wise builder</div>
     </header>
 
-    <div class="module-bar">
+    <div class="job-bar">
       <div class="grp">
-        <label for="modSaveName">Save as</label>
-        <input id="modSaveName" type="text" placeholder="module name">
-        <button id="modSaveBtn">Save</button>
+        <label for="jobName">Job name</label>
+        <input id="jobName" type="text" placeholder="e.g. ABC Corp · 5000 boxes">
+        <button id="saveBtn">Save</button>
+        <button id="newBtn" class="ghost">New</button>
       </div>
       <div class="grp">
-        <label for="modLoad">Load</label>
-        <select id="modLoad">
-          <option value="">— select module —</option>
-        </select>
-        <button id="modLoadBtn">Load</button>
-        <button id="modDeleteBtn" class="ghost">Delete</button>
+        <button id="historyBtn" class="ghost">History ▾</button>
       </div>
       <div class="spacer"></div>
-      <button id="modResetBtn" class="ghost">Reset all</button>
+      <span class="user-tag">Signed in as <b id="userTag">—</b></span>
+      <button id="logoutBtn" class="ghost">Logout</button>
     </div>
+
+    <div class="history-panel" id="historyPanel" style="display: none;">
+      <div class="history-controls">
+        <input id="historySearch" type="text" placeholder="Search saved quotes…">
+        <button id="historyCloseBtn" class="ghost">Close</button>
+      </div>
+      <div class="history-list" id="historyList">
+        <div class="history-empty">Loading…</div>
+      </div>
+    </div>
+
     <div id="modStatus" class="module-status"></div>
 
     <div class="stepper">
@@ -1486,27 +1649,16 @@
 
     recompute();
 
-    // ===== MODULES (save / load / delete / reset) =====
-    const STORAGE_PREFIX = 'boxcostcal_module_';
+    // ===== Supabase: auth + cloud-saved quotes =====
+    const SUPABASE_URL = 'https://nkqqtsscpojjhwwbsbjx.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5rcXF0c3NjcG9qamh3d2JzYmp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2OTc0NTYsImV4cCI6MjA3NjI3MzQ1Nn0.iDC5vJdcg1AomvcNa4ypl-aoEY0MN6R5qAfssQH-FuY';
+    const EMAIL_DOMAIN = '@boxcostcal.local';
 
-    function listModules() {
-      return Object.keys(localStorage)
-        .filter(k => k.startsWith(STORAGE_PREFIX))
-        .map(k => k.slice(STORAGE_PREFIX.length))
-        .sort((a, b) => a.localeCompare(b));
-    }
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    function populateModuleList(selectName) {
-      const sel = $('modLoad');
-      const names = listModules();
-      const opts = ['<option value="">— select module —</option>']
-        .concat(names.map(n => {
-          const safe = n.replace(/&/g, '&amp;').replace(/</g, '&lt;');
-          return `<option value="${safe}">${safe}</option>`;
-        }));
-      sel.innerHTML = opts.join('');
-      if (selectName) sel.value = selectName;
-    }
+    let currentUser = null;
+    let currentQuoteId = null;
+    let historyCache = [];
 
     let statusTimer = null;
     function setStatus(msg, isError) {
@@ -1520,67 +1672,17 @@
       }
     }
 
-    function saveModule() {
-      try {
-        const name = $('modSaveName').value.trim();
-        if (!name) { setStatus('Enter a module name to save.', true); return; }
-        if (localStorage.getItem(STORAGE_PREFIX + name) &&
-            !confirm(`Overwrite existing module "${name}"?`)) return;
-        const data = {};
-        let savedCount = 0;
-        INPUT_IDS.forEach(id => {
-          const el = $(id);
-          if (!el) return; // skip missing inputs gracefully
-          data[id] = el.value;
-          savedCount++;
-        });
-        localStorage.setItem(STORAGE_PREFIX + name, JSON.stringify(data));
-        $('modSaveName').value = '';
-        populateModuleList(name);
-        setStatus(`Saved module "${name}" (${savedCount} fields).`);
-      } catch (err) {
-        setStatus(`Save failed: ${err.message}`, true);
-      }
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c =>
+        ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])
+      );
     }
 
-    function loadModule(name) {
-      try {
-        if (!name) { setStatus('Select a module to load.', true); return; }
-        const raw = localStorage.getItem(STORAGE_PREFIX + name);
-        if (!raw) { setStatus(`Module "${name}" not found.`, true); return; }
-        const data = JSON.parse(raw);
-        let loadedCount = 0;
-        INPUT_IDS.forEach(id => {
-          if (!(id in data)) return;
-          const el = $(id);
-          if (!el) return;
-          el.value = data[id];
-          loadedCount++;
-        });
-        updatePlyVisibility();
-        recompute();
-        setStatus(`Loaded module "${name}" (${loadedCount} fields applied).`);
-      } catch (err) {
-        setStatus(`Load failed: ${err.message}`, true);
-      }
-    }
-
-    function deleteModule() {
-      const name = $('modLoad').value;
-      if (!name) { setStatus('Select a module to delete.', true); return; }
-      if (!confirm(`Delete module "${name}"?`)) return;
-      localStorage.removeItem(STORAGE_PREFIX + name);
-      populateModuleList();
-      setStatus(`Deleted module "${name}".`);
-    }
-
-    function resetAll() {
-      if (!confirm('Clear all inputs?')) return;
+    function clearAllInputs() {
       INPUT_IDS.forEach(id => {
         const el = $(id);
         if (el) el.value = '';
       });
-      // restore ply select defaults so corrugation stays usable
       $('corrType').value      = 'standard';
       $('corrPlies').value     = '3';
       $('corrGsmMode').value   = 'same';
@@ -1589,14 +1691,222 @@
       $('boxesPerSheet').value = '1';
       updatePlyVisibility();
       recompute();
-      setStatus('Reset all inputs.');
     }
 
-    $('modSaveBtn').addEventListener('click', saveModule);
-    $('modLoadBtn').addEventListener('click', () => loadModule($('modLoad').value));
-    $('modDeleteBtn').addEventListener('click', deleteModule);
-    $('modResetBtn').addEventListener('click', resetAll);
-    populateModuleList();
+    function showApp() {
+      $('authOverlay').style.display = 'none';
+      $('mainApp').style.display = '';
+      const username = currentUser.email.replace(EMAIL_DOMAIN, '');
+      $('userTag').textContent = username;
+      loadHistory();
+    }
+
+    function showLogin() {
+      $('mainApp').style.display = 'none';
+      $('authOverlay').style.display = '';
+      $('authUser').focus();
+    }
+
+    async function signIn() {
+      const usernameRaw = $('authUser').value.trim().toLowerCase();
+      const password = $('authPass').value;
+      $('authErr').textContent = '';
+      if (!usernameRaw || !password) {
+        $('authErr').textContent = 'Enter username and password.';
+        return;
+      }
+      const email = usernameRaw + EMAIL_DOMAIN;
+      $('authBtn').disabled = true;
+      $('authBtn').textContent = 'Signing in…';
+      try {
+        const { data, error } = await sb.auth.signInWithPassword({ email, password });
+        if (error) {
+          $('authErr').textContent = 'Login failed. Check username and password.';
+          return;
+        }
+        currentUser = data.user;
+        $('authPass').value = '';
+        showApp();
+      } finally {
+        $('authBtn').disabled = false;
+        $('authBtn').textContent = 'Sign in';
+      }
+    }
+
+    async function signOut() {
+      await sb.auth.signOut();
+      currentUser = null;
+      currentQuoteId = null;
+      $('jobName').value = '';
+      clearAllInputs();
+      showLogin();
+    }
+
+    async function saveQuote() {
+      const name = $('jobName').value.trim();
+      if (!name) { setStatus('Enter a job name to save.', true); return; }
+      if (!currentUser) { setStatus('Not signed in.', true); return; }
+
+      const data = {};
+      INPUT_IDS.forEach(id => {
+        const el = $(id);
+        if (el) data[id] = el.value;
+      });
+
+      $('saveBtn').disabled = true;
+      try {
+        let result, err;
+        if (currentQuoteId) {
+          ({ data: result, error: err } = await sb
+            .from('boxcostcal_quotes')
+            .update({ name, data })
+            .eq('id', currentQuoteId)
+            .select()
+            .single());
+        } else {
+          ({ data: result, error: err } = await sb
+            .from('boxcostcal_quotes')
+            .insert({ user_id: currentUser.id, name, data })
+            .select()
+            .single());
+        }
+        if (err) { setStatus(`Save failed: ${err.message}`, true); return; }
+        currentQuoteId = result.id;
+        setStatus(`Saved "${name}".`);
+        await loadHistory();
+      } finally {
+        $('saveBtn').disabled = false;
+      }
+    }
+
+    function newQuote() {
+      const hasInput = INPUT_IDS.some(id => {
+        const el = $(id);
+        return el && el.value && el.value !== '' && el.value !== '500' && el.value !== '12' && el.value !== '1' && el.value !== '3' && el.value !== 'same' && el.value !== 'standard';
+      });
+      if ((currentQuoteId || hasInput) &&
+          !confirm('Start a new quote? Current inputs will be cleared.')) return;
+      currentQuoteId = null;
+      $('jobName').value = '';
+      clearAllInputs();
+      setStatus('New quote.');
+    }
+
+    async function loadHistory() {
+      const { data, error } = await sb
+        .from('boxcostcal_quotes')
+        .select('id, name, updated_at')
+        .order('updated_at', { ascending: false })
+        .limit(200);
+      if (error) {
+        setStatus(`History load failed: ${error.message}`, true);
+        return;
+      }
+      historyCache = data || [];
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const list = $('historyList');
+      const q = $('historySearch').value.toLowerCase().trim();
+      const items = q
+        ? historyCache.filter(it => (it.name || '').toLowerCase().includes(q))
+        : historyCache;
+      if (!items.length) {
+        list.innerHTML = `<div class="history-empty">${historyCache.length === 0 ? 'No saved quotes yet.' : 'No matches.'}</div>`;
+        return;
+      }
+      list.innerHTML = items.map(it => {
+        const d = new Date(it.updated_at);
+        const stamp = d.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+        const cur = it.id === currentQuoteId ? ' current' : '';
+        return `<div class="history-item${cur}" data-id="${it.id}">
+          <div class="h-name">${escapeHtml(it.name || '(untitled)')}</div>
+          <div class="h-meta">${stamp}</div>
+          <button class="h-load" data-id="${it.id}">Load</button>
+          <button class="h-del"  data-id="${it.id}" data-name="${escapeHtml(it.name || '')}">Delete</button>
+        </div>`;
+      }).join('');
+    }
+
+    async function loadQuoteById(id) {
+      const { data, error } = await sb
+        .from('boxcostcal_quotes')
+        .select('*')
+        .eq('id', id)
+        .single();
+      if (error) { setStatus(`Load failed: ${error.message}`, true); return; }
+      clearAllInputs();
+      const blob = data.data || {};
+      INPUT_IDS.forEach(id => {
+        if (!(id in blob)) return;
+        const el = $(id);
+        if (el) el.value = blob[id];
+      });
+      $('jobName').value = data.name || '';
+      currentQuoteId = data.id;
+      updatePlyVisibility();
+      recompute();
+      renderHistory();
+      setStatus(`Loaded "${data.name}".`);
+    }
+
+    async function deleteQuoteById(id, name) {
+      if (!confirm(`Delete "${name || 'quote'}"?`)) return;
+      const { error } = await sb.from('boxcostcal_quotes').delete().eq('id', id);
+      if (error) { setStatus(`Delete failed: ${error.message}`, true); return; }
+      if (currentQuoteId === id) {
+        currentQuoteId = null;
+        $('jobName').value = '';
+      }
+      await loadHistory();
+      setStatus(`Deleted "${name || 'quote'}".`);
+    }
+
+    function toggleHistory() {
+      const p = $('historyPanel');
+      const visible = p.style.display !== 'none';
+      p.style.display = visible ? 'none' : '';
+      if (!visible) loadHistory();
+    }
+
+    // ===== Wire up =====
+    $('authBtn').addEventListener('click', signIn);
+    $('authPass').addEventListener('keydown', e => { if (e.key === 'Enter') signIn(); });
+    $('authUser').addEventListener('keydown', e => { if (e.key === 'Enter') $('authPass').focus(); });
+    $('logoutBtn').addEventListener('click', signOut);
+
+    $('saveBtn').addEventListener('click', saveQuote);
+    $('newBtn').addEventListener('click', newQuote);
+    $('historyBtn').addEventListener('click', toggleHistory);
+    $('historyCloseBtn').addEventListener('click', () => $('historyPanel').style.display = 'none');
+    $('historySearch').addEventListener('input', renderHistory);
+    $('historyList').addEventListener('click', e => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      const id = btn.dataset.id;
+      if (btn.classList.contains('h-load')) loadQuoteById(id);
+      else if (btn.classList.contains('h-del')) deleteQuoteById(id, btn.dataset.name);
+    });
+
+    // Session check on load
+    (async () => {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session && session.user) {
+        currentUser = session.user;
+        showApp();
+      } else {
+        showLogin();
+      }
+    })();
+
+    // Auto-sign-out propagation across tabs
+    sb.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        currentUser = null;
+        showLogin();
+      }
+    });
   </script>
 </body>
 </html>
