@@ -35,7 +35,7 @@
     .app {
       width: min(960px, calc(100vw - 28px));
       margin: 0 auto;
-      padding: 24px 0 40px;
+      padding: 24px 0 118px;
     }
     header.top {
       display: flex;
@@ -191,21 +191,223 @@
       font-weight: 500;
     }
     .result.bad .v { color: var(--muted); font-weight: 400; font-size: 15px; }
+    @media (max-width: 560px) {
+      .summary-card .results-grid,
+      .pricing-panel .results-grid {
+        grid-template-columns: 1fr !important;
+      }
+      .result {
+        padding: 11px 12px;
+      }
+    }
+
+    .process-picker {
+      margin: 14px 0 18px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+    .process-picker-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .process-picker-title {
+      margin: 0 0 3px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .process-picker-copy {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.35;
+    }
+    .picker-count {
+      flex: 0 0 auto;
+      padding: 5px 9px;
+      border: 1px solid rgba(23, 107, 91, 0.18);
+      border-radius: 999px;
+      background: rgba(23, 107, 91, 0.07);
+      color: var(--green-dark);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .process-options {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .process-option {
+      position: relative;
+      display: grid;
+      grid-template-columns: 24px minmax(0, 1fr);
+      align-items: stretch;
+      gap: 8px;
+      min-height: 74px;
+      padding: 9px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      user-select: none;
+    }
+    .process-option:hover {
+      border-color: var(--line-strong);
+      background: #fff;
+    }
+    .process-option.is-current {
+      border-color: var(--green);
+      background: #fff;
+      box-shadow: 0 0 0 2px rgba(23, 107, 91, 0.08);
+    }
+    .process-option.is-off {
+      background: rgba(24, 32, 31, 0.025);
+    }
+    .process-enable {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 3px;
+      cursor: pointer;
+    }
+    .process-enable input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .option-check {
+      position: relative;
+      flex: 0 0 auto;
+      width: 18px;
+      height: 18px;
+      border: 1.5px solid var(--line-strong);
+      border-radius: 5px;
+      background: #fff;
+    }
+    .option-check::after {
+      content: "";
+      position: absolute;
+      left: 5px;
+      top: 2px;
+      width: 5px;
+      height: 9px;
+      border: solid #fff;
+      border-width: 0 2px 2px 0;
+      opacity: 0;
+      transform: rotate(45deg);
+    }
+    .process-enable input:checked + .option-check {
+      border-color: var(--green);
+      background: var(--green);
+    }
+    .process-enable input:checked + .option-check::after {
+      opacity: 1;
+    }
+    .process-enable input:focus-visible + .option-check {
+      outline: 3px solid rgba(23, 107, 91, 0.18);
+      outline-offset: 2px;
+    }
+    .process-tab {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-width: 0;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+    .option-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      min-width: 0;
+    }
+    .option-name {
+      font-size: 12.5px;
+      color: var(--ink);
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .option-state {
+      flex: 0 0 auto;
+      padding: 3px 6px;
+      border-radius: 999px;
+      background: rgba(24, 32, 31, 0.06);
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.25px;
+      line-height: 1;
+    }
+    .process-option.is-ready .option-state {
+      background: rgba(23, 107, 91, 0.1);
+      color: var(--green-dark);
+    }
+    .process-option.needs-input .option-state {
+      background: rgba(185, 95, 24, 0.12);
+      color: var(--amber);
+    }
+    .process-option.is-off .option-state {
+      background: rgba(24, 32, 31, 0.05);
+      color: var(--muted);
+    }
+    .option-cost {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--green-dark);
+      line-height: 1.15;
+    }
+    .process-option.is-off .option-cost {
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .option-help {
+      font-size: 11px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .process-option:not(.is-off) .option-name {
+      color: var(--green-dark);
+    }
+    .process-empty {
+      display: none;
+      margin-top: 12px;
+      padding: 14px;
+      border: 1px dashed var(--line-strong);
+      border-radius: 8px;
+      background: rgba(24, 32, 31, 0.03);
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
 
     .proc {
       border: 1px solid var(--line);
       border-radius: 8px;
-      background: rgba(255, 253, 248, 0.55);
-      padding: 14px 16px;
-      margin-top: 14px;
+      background: #ffffff;
+      padding: 16px;
+      margin-top: 12px;
     }
     .proc-head {
       display: flex;
       justify-content: space-between;
-      align-items: baseline;
+      align-items: flex-start;
       gap: 12px;
       flex-wrap: wrap;
-      margin-bottom: 10px;
+      margin-bottom: 14px;
     }
     .proc-name {
       font-weight: 600;
@@ -216,6 +418,8 @@
       color: var(--muted);
       font-size: 11.5px;
       font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      max-width: 520px;
+      line-height: 1.35;
     }
     .proc-foot {
       margin-top: 10px;
@@ -232,25 +436,293 @@
       font-weight: 600;
       margin-left: 4px;
     }
-    .proc-toggle {
+    .extra-proc { display: none; }
+    .extra-proc.active-detail { display: block; }
+    .extra-proc.disabled { display: none; }
+    .card + .card { margin-top: 22px; }
+
+    @media (max-width: 760px) {
+      .process-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 520px) {
+      .process-picker { padding: 12px; }
+      .process-picker-head { flex-direction: column; gap: 8px; }
+      .picker-count { align-self: flex-start; }
+      .process-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .process-option {
+        grid-template-columns: 22px minmax(0, 1fr);
+        gap: 7px;
+        min-height: 96px;
+        padding: 8px;
+      }
+      .option-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+      .option-state { font-size: 9.5px; }
+      .option-cost { font-size: 12px; }
+      .proc { padding: 14px; }
+      .proc-head { gap: 6px; }
+      .proc-formula { font-size: 11px; }
+    }
+    @media (max-width: 350px) {
+      .process-options { grid-template-columns: 1fr; }
+      .process-option { min-height: 72px; }
+      .option-top {
+        flex-direction: row;
+        align-items: center;
+      }
+    }
+
+    /* Summary + pricing card pinned at top */
+    .summary-card {
+      background: linear-gradient(180deg, #ffffff, #fbf8f0);
+      border-color: var(--line-strong);
+    }
+    .summary-card .result {
+      background: #fff;
+    }
+    .summary-card .result.hero .v {
+      font-size: 26px;
+    }
+    .summary-card .result.hero {
+      border-color: var(--green);
+      box-shadow: 0 0 0 2px rgba(23, 107, 91, 0.08);
+    }
+
+    .pricing {
+      margin-top: 18px;
+      border-top: 1px dashed var(--line-strong);
+      padding-top: 16px;
+    }
+    .pricing-tabs {
       display: inline-flex;
+      gap: 4px;
+      padding: 4px;
+      background: rgba(24, 32, 31, 0.05);
+      border-radius: 8px;
+      margin-bottom: 14px;
+    }
+    .pricing-tab {
+      padding: 7px 14px;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .pricing-tab.active {
+      background: #fff;
+      color: var(--green-dark);
+      box-shadow: 0 1px 3px rgba(24, 32, 31, 0.08);
+    }
+    .pricing-panel { display: none; }
+    .pricing-panel.active { display: block; }
+    .pricing-panel .grid { margin-bottom: 14px; }
+    .pricing-panel .result.warn .v { color: var(--amber); }
+
+    /* Collapsible step cards */
+    .collapsible .card-head {
+      display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 14px;
       cursor: pointer;
       user-select: none;
+      margin-bottom: 4px;
     }
-    .proc-toggle input[type="checkbox"] {
-      width: 16px;
-      height: 16px;
+    .collapsible .card-head h2 { margin: 0; flex: 0 0 auto; }
+    .collapsible .card-head .card-mini {
+      flex: 1;
+      color: var(--green-dark);
+      font-weight: 600;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.18s;
+    }
+    .collapsible.collapsed .card-head .card-mini { opacity: 1; }
+    .collapsible .card-head .card-chevron {
+      color: var(--muted);
+      font-size: 13px;
+      transition: transform 0.2s;
+      width: 18px;
+      text-align: center;
+    }
+    .collapsible.collapsed .card-head .card-chevron { transform: rotate(-90deg); }
+    .collapsible.collapsed > :not(.card-head) { display: none; }
+
+    /* Fixed bottom total bar */
+    .stickybar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 30;
+      background: rgba(255, 253, 248, 0.96);
+      backdrop-filter: saturate(140%) blur(8px);
+      border-top: 1px solid var(--line-strong);
+      box-shadow: 0 -10px 24px rgba(24, 32, 31, 0.08);
+      transform: translateY(100%);
+      transition: transform 0.22s ease;
+    }
+    .stickybar.show { transform: translateY(0); }
+    .stickybar-inner {
+      width: min(960px, calc(100vw - 28px));
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 10px 0;
+      font-size: 13px;
+    }
+    .stickybar-inner .who {
+      flex: 1;
+      color: var(--muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .stickybar-inner .who b { color: var(--ink); font-weight: 600; }
+    .stickybar-inner .total-label {
+      display: block;
+      font-size: 10.5px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+    .stickybar-inner .met {
+      display: flex;
+      gap: 14px;
+      align-items: baseline;
+    }
+    .stickybar-inner .met .pair {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      line-height: 1.1;
+    }
+    .stickybar-inner .met .k {
+      font-size: 10.5px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .stickybar-inner .met .v {
+      font-weight: 600;
+      color: var(--green-dark);
+      font-size: 15px;
+    }
+    .stickybar-inner .met .v.sell { color: var(--amber); }
+    .stickybar-inner .met .v.warn { color: #b1392d; }
+    .stickybar-inner button {
+      border: 1px solid var(--line-strong);
+      background: var(--panel-strong);
+      color: var(--muted);
+      border-radius: 6px;
+      padding: 5px 10px;
       cursor: pointer;
-      accent-color: var(--green);
+      font-size: 12px;
     }
-    .proc.disabled .proc-toggle { opacity: 1; }
-    .proc.disabled .proc-name { color: var(--muted); }
-    .proc.disabled .proc-formula,
-    .proc.disabled .grid,
-    .proc.disabled .proc-foot { opacity: 0.42; }
-    .card + .card { margin-top: 22px; }
+    .stickybar-inner button:hover { color: var(--ink); border-color: var(--muted); }
+    @media (max-width: 620px) {
+      .stickybar-inner .who { display: none; }
+      .stickybar-inner {
+        width: calc(100vw - 20px);
+        gap: 8px;
+      }
+      .stickybar-inner .met {
+        flex: 1;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .stickybar-inner .met .pair {
+        align-items: flex-start;
+      }
+      .stickybar-inner .met .v {
+        font-size: 14px;
+      }
+      .stickybar-inner button {
+        padding: 7px 9px;
+      }
+    }
+    @media (max-width: 430px) {
+      .stickybar-inner .met .pair:first-child { display: none; }
+    }
+
+    /* Print quote view */
+    .print-only { display: none; }
+    @media print {
+      body { background: #fff; }
+      .stickybar,
+      .module-bar,
+      .job-bar,
+      .stepper,
+      .history-panel,
+      .module-status,
+      .summary-card,
+      .card,
+      footer,
+      header.top { display: none !important; }
+      .print-only { display: block; }
+      .app { padding: 0; }
+    }
+    .print-quote {
+      padding: 0;
+      color: #1a1f1e;
+      font-size: 13px;
+    }
+    .print-quote h1 {
+      margin: 0 0 4px;
+      font-size: 22px;
+    }
+    .print-quote .meta-row {
+      display: flex;
+      justify-content: space-between;
+      color: #555;
+      font-size: 12px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid #aaa;
+      padding-bottom: 10px;
+    }
+    .print-quote h3 {
+      margin: 18px 0 6px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #333;
+    }
+    .print-quote table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    .print-quote td {
+      padding: 5px 8px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .print-quote td.label { color: #666; width: 55%; }
+    .print-quote td.val { text-align: right; font-weight: 600; }
+    .print-quote .totals {
+      margin-top: 18px;
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 12px 14px;
+    }
+    .print-quote .totals .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+    }
+    .print-quote .totals .row.grand {
+      border-top: 1px solid #333;
+      margin-top: 8px;
+      padding-top: 10px;
+      font-size: 15px;
+      font-weight: 700;
+    }
 
     .module-bar {
       display: flex;
@@ -528,6 +1000,7 @@
       </div>
       <div class="grp">
         <button id="historyBtn" class="ghost">History ▾</button>
+        <button id="printBtn" class="ghost">Print Quote</button>
       </div>
       <div class="spacer"></div>
       <span class="user-tag">Signed in as <b id="userTag">—</b></span>
@@ -556,8 +1029,110 @@
       <div class="step-chip active">4. Finishing</div>
     </div>
 
-    <section class="card" id="paper-card">
-      <h2>Paper Costing</h2>
+    <section class="card summary-card" id="summary-card">
+      <h2>Grand Total</h2>
+      <p class="hint">Live summary across all steps. Add profit % or enter a sold rate to see margin.</p>
+      <div class="results" style="margin-top: 4px; border-top: 0; padding-top: 0;">
+        <div class="results-grid" style="grid-template-columns: repeat(2, 1fr);">
+          <div class="result hero">
+            <div class="k">Cost / sheet</div>
+            <div class="v" id="gTotal">—</div>
+          </div>
+          <div class="result hero">
+            <div class="k">Cost / box</div>
+            <div class="v" id="gPerBox">—</div>
+          </div>
+        </div>
+        <div class="results-grid" style="grid-template-columns: repeat(4, 1fr); margin-top: 12px;">
+          <div class="result">
+            <div class="k">Paper / sheet</div>
+            <div class="v" id="gPaper">—</div>
+          </div>
+          <div class="result">
+            <div class="k">Extras / sheet</div>
+            <div class="v" id="gExtras">—</div>
+          </div>
+          <div class="result">
+            <div class="k">Corrugation / sheet</div>
+            <div class="v" id="gCorr">—</div>
+          </div>
+          <div class="result">
+            <div class="k">Finishing / sheet</div>
+            <div class="v" id="gFinish">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pricing">
+        <div class="pricing-tabs" role="tablist">
+          <button type="button" class="pricing-tab active" data-tab="profit">Profit %</button>
+          <button type="button" class="pricing-tab" data-tab="sold">Sold Rate</button>
+        </div>
+
+        <div class="pricing-panel active" id="panel-profit">
+          <div class="grid">
+            <div class="field">
+              <label for="profitPct">Profit %</label>
+              <div class="input-wrap">
+                <input id="profitPct" type="number" inputmode="decimal" step="0.5" min="0">
+                <span class="suffix">%</span>
+              </div>
+            </div>
+          </div>
+          <div class="results-grid" style="grid-template-columns: repeat(3, 1fr);">
+            <div class="result">
+              <div class="k">Selling / box</div>
+              <div class="v" id="sellBox">—</div>
+            </div>
+            <div class="result">
+              <div class="k">Profit / box</div>
+              <div class="v" id="profitBox">—</div>
+            </div>
+            <div class="result">
+              <div class="k">Job revenue</div>
+              <div class="v" id="sellJob">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pricing-panel" id="panel-sold">
+          <div class="grid">
+            <div class="field">
+              <label for="soldRate">Final sold rate / box</label>
+              <div class="input-wrap">
+                <input id="soldRate" type="number" inputmode="decimal" step="0.5" min="0">
+                <span class="suffix">₹ / box</span>
+              </div>
+            </div>
+          </div>
+          <div class="results-grid" style="grid-template-columns: repeat(4, 1fr);">
+            <div class="result">
+              <div class="k">Profit / box</div>
+              <div class="v" id="soldProfitBox">—</div>
+            </div>
+            <div class="result">
+              <div class="k">Profit %</div>
+              <div class="v" id="soldProfitPct">—</div>
+            </div>
+            <div class="result">
+              <div class="k">Margin %</div>
+              <div class="v" id="soldMarginPct">—</div>
+            </div>
+            <div class="result">
+              <div class="k">Job revenue</div>
+              <div class="v" id="soldJobRev">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card collapsible" id="paper-card">
+      <div class="card-head">
+        <h2>Paper Costing</h2>
+        <span class="card-mini" id="mini-paper"></span>
+        <span class="card-chevron">▾</span>
+      </div>
       <p class="hint">Enter paper details and costing factors. Weight uses L×W×GSM÷1540. Results round to 2 decimals.</p>
 
       <div class="section-label">Paper</div>
@@ -676,8 +1251,12 @@
       </div>
     </section>
 
-    <section class="card" id="extras-card">
-      <h2>Extra Processes</h2>
+    <section class="card collapsible" id="extras-card">
+      <div class="card-head">
+        <h2>Extra Processes</h2>
+        <span class="card-mini" id="mini-extras"></span>
+        <span class="card-chevron">▾</span>
+      </div>
       <p class="hint">Each process shows ₹/sheet, ₹/pack and ₹ total. Total sheets carry over from Step 1 (packets × pack × cuts).</p>
 
       <div class="inherited" id="jobInherit">
@@ -685,13 +1264,112 @@
         <span class="calc" id="jobCalc">—</span>
       </div>
 
-      <div class="proc" id="proc-prt">
+      <div class="process-picker" aria-label="Choose extra processes">
+        <div class="process-picker-head">
+          <div>
+            <div class="process-picker-title">Processes needed</div>
+            <p class="process-picker-copy">Select only the work required for this job. Open each selected process below and fill just those fields.</p>
+          </div>
+          <span class="picker-count" id="processCount">8 active</span>
+        </div>
+        <div class="process-options">
+          <div class="process-option" data-process-option="prt">
+            <label class="process-enable" aria-label="Use Printing">
+              <input type="checkbox" id="prtOn" checked>
+              <span class="option-check" aria-hidden="true"></span>
+            </label>
+            <button type="button" class="process-tab" data-process="prt">
+              <span class="option-top"><span class="option-name">Printing</span><span class="option-state" id="prtState">Needs input</span></span>
+              <span class="option-cost" id="prtTileCost">—</span>
+              <span class="option-help">Lot cost</span>
+            </button>
+          </div>
+          <div class="process-option" data-process-option="uv">
+            <label class="process-enable" aria-label="Use UV Hybrid">
+              <input type="checkbox" id="uvOn" checked>
+              <span class="option-check" aria-hidden="true"></span>
+            </label>
+            <button type="button" class="process-tab" data-process="uv">
+              <span class="option-top"><span class="option-name">UV Hybrid</span><span class="option-state" id="uvState">Needs input</span></span>
+              <span class="option-cost" id="uvTileCost">—</span>
+              <span class="option-help">Area based</span>
+            </button>
+          </div>
+          <div class="process-option" data-process-option="uvp">
+            <label class="process-enable" aria-label="Use UV Plate">
+              <input type="checkbox" id="uvpOn" checked>
+              <span class="option-check" aria-hidden="true"></span>
+            </label>
+            <button type="button" class="process-tab" data-process="uvp">
+              <span class="option-top"><span class="option-name">UV Plate</span><span class="option-state" id="uvpState">Needs input</span></span>
+              <span class="option-cost" id="uvpTileCost">—</span>
+              <span class="option-help">Flat charge</span>
+            </button>
+          </div>
+          <div class="process-option" data-process-option="cryst">
+            <label class="process-enable" aria-label="Use Matt Crystal Screen">
+              <input type="checkbox" id="crystOn" checked>
+              <span class="option-check" aria-hidden="true"></span>
+            </label>
+            <button type="button" class="process-tab" data-process="cryst">
+              <span class="option-top"><span class="option-name">Matt / Crystal</span><span class="option-state" id="crystState">Needs input</span></span>
+              <span class="option-cost" id="crystTileCost">—</span>
+              <span class="option-help">Screen work</span>
+            </button>
+          </div>
+          <div class="process-option" data-process-option="leaf">
+            <label class="process-enable" aria-label="Use Leaf Foil">
+              <input type="checkbox" id="leafOn" checked>
+              <span class="option-check" aria-hidden="true"></span>
+            </label>
+            <button type="button" class="process-tab" data-process="leaf">
+              <span class="option-top"><span class="option-name">Leaf Foil</span><span class="option-state" id="leafState">Needs input</span></span>
+              <span class="option-cost" id="leafTileCost">—</span>
+              <span class="option-help">Area + minimum</span>
+            </button>
+          </div>
+          <div class="process-option" data-process-option="lb">
+            <label class="process-enable" aria-label="Use Leaf Block">
+              <input type="checkbox" id="lbOn" checked>
+              <span class="option-check" aria-hidden="true"></span>
+            </label>
+            <button type="button" class="process-tab" data-process="lb">
+              <span class="option-top"><span class="option-name">Leaf Block</span><span class="option-state" id="lbState">Needs input</span></span>
+              <span class="option-cost" id="lbTileCost">—</span>
+              <span class="option-help">Flat charge</span>
+            </button>
+          </div>
+          <div class="process-option" data-process-option="design">
+            <label class="process-enable" aria-label="Use Design">
+              <input type="checkbox" id="designOn" checked>
+              <span class="option-check" aria-hidden="true"></span>
+            </label>
+            <button type="button" class="process-tab" data-process="design">
+              <span class="option-top"><span class="option-name">Design</span><span class="option-state" id="designState">Needs input</span></span>
+              <span class="option-cost" id="designTileCost">—</span>
+              <span class="option-help">Flat charge</span>
+            </button>
+          </div>
+          <div class="process-option" data-process-option="freight">
+            <label class="process-enable" aria-label="Use Freight">
+              <input type="checkbox" id="freightOn" checked>
+              <span class="option-check" aria-hidden="true"></span>
+            </label>
+            <button type="button" class="process-tab" data-process="freight">
+              <span class="option-top"><span class="option-name">Freight</span><span class="option-state" id="freightState">Needs input</span></span>
+              <span class="option-cost" id="freightTileCost">—</span>
+              <span class="option-help">Cartage</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="process-empty" id="processEmpty">No extra process selected. Choose one above if this job needs printing, UV, foil, design, or freight.</div>
+
+      <div class="proc extra-proc active-detail" id="proc-prt">
         <div class="proc-head">
-          <label class="proc-toggle">
-            <input type="checkbox" id="prtOn" checked>
-            <span class="proc-name">1. Printing</span>
-          </label>
-          <span class="proc-formula">cost/lot ÷ total sheets → /sheet</span>
+          <span class="proc-name">1. Printing</span>
+          <span class="proc-formula">Enter the job lot cost. The app divides it across effective sheets.</span>
         </div>
         <div class="grid">
           <div class="field">
@@ -705,13 +1383,10 @@
         <div class="proc-foot" id="prtFoot"></div>
       </div>
 
-      <div class="proc" id="proc-uv">
+      <div class="proc extra-proc" id="proc-uv">
         <div class="proc-head">
-          <label class="proc-toggle">
-            <input type="checkbox" id="uvOn" checked>
-            <span class="proc-name">2. UV Hybrid</span>
-          </label>
-          <span class="proc-formula">(L × W) ÷ (sq.in per paisa × 100) = base /sheet · × total sheets</span>
+          <span class="proc-name">2. UV Hybrid</span>
+          <span class="proc-formula">Enter the UV area and coverage rate. Total updates from the Step 1 quantity.</span>
         </div>
         <div class="grid">
           <div class="field">
@@ -739,13 +1414,10 @@
         <div class="proc-foot" id="uvFoot"></div>
       </div>
 
-      <div class="proc" id="proc-uvp">
+      <div class="proc extra-proc" id="proc-uvp">
         <div class="proc-head">
-          <label class="proc-toggle">
-            <input type="checkbox" id="uvpOn" checked>
-            <span class="proc-name">3. UV Hybrid Plate</span>
-          </label>
-          <span class="proc-formula">flat ÷ effective sheets → /sheet</span>
+          <span class="proc-name">3. UV Hybrid Plate</span>
+          <span class="proc-formula">One-time plate cost spread across effective sheets.</span>
         </div>
         <div class="grid">
           <div class="field">
@@ -759,13 +1431,10 @@
         <div class="proc-foot" id="uvpFoot"></div>
       </div>
 
-      <div class="proc" id="proc-cryst">
+      <div class="proc extra-proc" id="proc-cryst">
         <div class="proc-head">
-          <label class="proc-toggle">
-            <input type="checkbox" id="crystOn" checked>
-            <span class="proc-name">4. Matt / Crystal / Screen</span>
-          </label>
-          <span class="proc-formula">crystal ₹/sheet · matt (L×B)÷(paisa×100) · screen flat ÷ effective</span>
+          <span class="proc-name">4. Matt / Crystal / Screen</span>
+          <span class="proc-formula">Use any combination of crystal rate, matt area, and screen charge.</span>
         </div>
         <div class="grid">
           <div class="field">
@@ -807,13 +1476,10 @@
         <div class="proc-foot" id="crystFoot"></div>
       </div>
 
-      <div class="proc" id="proc-leaf">
+      <div class="proc extra-proc" id="proc-leaf">
         <div class="proc-head">
-          <label class="proc-toggle">
-            <input type="checkbox" id="leafOn" checked>
-            <span class="proc-name">5. Leaf (foil)</span>
-          </label>
-          <span class="proc-formula">L × B × rate ÷ 100 = base /sheet · × total sheets (floored at min)</span>
+          <span class="proc-name">5. Leaf (foil)</span>
+          <span class="proc-formula">Area cost is calculated first, then compared with the minimum charge.</span>
         </div>
         <div class="grid">
           <div class="field">
@@ -848,13 +1514,10 @@
         <div class="proc-foot" id="leafFoot"></div>
       </div>
 
-      <div class="proc" id="proc-lb">
+      <div class="proc extra-proc" id="proc-lb">
         <div class="proc-head">
-          <label class="proc-toggle">
-            <input type="checkbox" id="lbOn" checked>
-            <span class="proc-name">6. Leaf Block</span>
-          </label>
-          <span class="proc-formula">flat ÷ effective sheets → /sheet</span>
+          <span class="proc-name">6. Leaf Block</span>
+          <span class="proc-formula">One-time block cost spread across effective sheets.</span>
         </div>
         <div class="grid">
           <div class="field">
@@ -868,13 +1531,10 @@
         <div class="proc-foot" id="lbFoot"></div>
       </div>
 
-      <div class="proc" id="proc-design">
+      <div class="proc extra-proc" id="proc-design">
         <div class="proc-head">
-          <label class="proc-toggle">
-            <input type="checkbox" id="designOn" checked>
-            <span class="proc-name">7. Design</span>
-          </label>
-          <span class="proc-formula">flat ÷ effective sheets → /sheet</span>
+          <span class="proc-name">7. Design</span>
+          <span class="proc-formula">One-time design cost spread across effective sheets.</span>
         </div>
         <div class="grid">
           <div class="field">
@@ -888,13 +1548,10 @@
         <div class="proc-foot" id="designFoot"></div>
       </div>
 
-      <div class="proc" id="proc-fc">
+      <div class="proc extra-proc" id="proc-fc">
         <div class="proc-head">
-          <label class="proc-toggle">
-            <input type="checkbox" id="freightOn" checked>
-            <span class="proc-name">8. Freight / Cartage</span>
-          </label>
-          <span class="proc-formula">flat ÷ effective sheets → /sheet</span>
+          <span class="proc-name">8. Freight / Cartage</span>
+          <span class="proc-formula">Flat freight or cartage cost spread across effective sheets.</span>
         </div>
         <div class="grid">
           <div class="field">
@@ -930,9 +1587,13 @@
       </div>
     </section>
 
-    <section class="card" id="corr-card">
-      <h2>Corrugation</h2>
-      <p class="hint">Sheet weight × roll rate (with tax), plus per-sheet pasting cost from a 40×40 reference.</p>
+    <section class="card collapsible" id="corr-card">
+      <div class="card-head">
+        <h2>Corrugation</h2>
+        <span class="card-mini" id="mini-corr"></span>
+        <span class="card-chevron">▾</span>
+      </div>
+      <p class="hint">Sheet weight × roll rate (with tax), plus per-sheet pasting cost from a 40×40 reference. Wastage isn't applied here.</p>
 
       <div class="section-label">Sheet</div>
       <div class="grid">
@@ -1098,9 +1759,13 @@
       </div>
     </section>
 
-    <section class="card" id="finishing-card">
-      <h2>Finishing &amp; Boxing</h2>
-      <p class="hint">Direct per-sheet rates for die cutting, side pasting, stitching, packing and freight. Final per-box cost = total/sheet ÷ boxes per sheet.</p>
+    <section class="card collapsible" id="finishing-card">
+      <div class="card-head">
+        <h2>Finishing &amp; Boxing</h2>
+        <span class="card-mini" id="mini-finish"></span>
+        <span class="card-chevron">▾</span>
+      </div>
+      <p class="hint">Direct per-sheet rates for die cutting, side pasting, stitching, packing and freight. Wastage isn't applied here.</p>
 
       <div class="section-label">Box layout</div>
       <div class="grid">
@@ -1227,46 +1892,25 @@
       </div>
     </section>
 
-    <section class="card" id="grand-card">
-      <h2>Grand Total</h2>
-      <p class="hint">All steps combined per effective sheet, with per-box conversion at the end.</p>
-      <div class="results">
-        <div class="results-grid">
-          <div class="result">
-            <div class="k">Paper / sheet</div>
-            <div class="v" id="gPaper">—</div>
-          </div>
-          <div class="result">
-            <div class="k">Extras / sheet</div>
-            <div class="v" id="gExtras">—</div>
-          </div>
-          <div class="result">
-            <div class="k">Corrugation / sheet</div>
-            <div class="v" id="gCorr">—</div>
-          </div>
-          <div class="result">
-            <div class="k">Finishing / sheet</div>
-            <div class="v" id="gFinish">—</div>
-          </div>
-        </div>
-        <div class="results-grid" style="grid-template-columns: repeat(3, 1fr); margin-top: 12px;">
-          <div class="result">
-            <div class="k">Total / sheet</div>
-            <div class="v" id="gTotal">—</div>
-          </div>
-          <div class="result">
-            <div class="k">Total / box</div>
-            <div class="v" id="gPerBox">—</div>
-          </div>
-          <div class="result">
-            <div class="k">Job total <span class="unit">(₹)</span></div>
-            <div class="v" id="gJob">—</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <footer>BoxCostCal · paper + extras + corrugation + finishing</footer>
+
+    <div class="print-only" id="printQuote"></div>
+  </div>
+
+  <div class="stickybar" id="stickybar" aria-hidden="true">
+    <div class="stickybar-inner">
+      <div class="who">
+        <span class="total-label">Grand total</span>
+        <b id="sbName">—</b><span id="sbModule"></span>
+      </div>
+      <div class="met">
+        <div class="pair"><span class="k">Cost / sheet</span><span class="v" id="sbSheet">—</span></div>
+        <div class="pair"><span class="k">Cost / box</span><span class="v" id="sbCost">—</span></div>
+        <div class="pair"><span class="k" id="sbSellK">Sell / box</span><span class="v sell" id="sbSell">—</span></div>
+      </div>
+      <button type="button" id="sbTop">Top</button>
+      <button type="button" id="sbPrint">Print</button>
+    </div>
   </div>
 
   <script>
@@ -1295,8 +1939,21 @@
       // Step 4: finishing
       'boxesPerSheet',
       'dieCut', 'sidePaste', 'stitchPins', 'stitchPerPin', 'packCost', 'finishFreight',
+      // Pricing
+      'profitPct', 'soldRate',
     ];
     const inputs = INPUT_IDS.map($);
+    const PROCESS_DEFS = [
+      { key: 'prt', checkbox: 'prtOn', panel: 'proc-prt', state: 'prtState', cost: 'prtTileCost' },
+      { key: 'uv', checkbox: 'uvOn', panel: 'proc-uv', state: 'uvState', cost: 'uvTileCost' },
+      { key: 'uvp', checkbox: 'uvpOn', panel: 'proc-uvp', state: 'uvpState', cost: 'uvpTileCost' },
+      { key: 'cryst', checkbox: 'crystOn', panel: 'proc-cryst', state: 'crystState', cost: 'crystTileCost' },
+      { key: 'leaf', checkbox: 'leafOn', panel: 'proc-leaf', state: 'leafState', cost: 'leafTileCost' },
+      { key: 'lb', checkbox: 'lbOn', panel: 'proc-lb', state: 'lbState', cost: 'lbTileCost' },
+      { key: 'design', checkbox: 'designOn', panel: 'proc-design', state: 'designState', cost: 'designTileCost' },
+      { key: 'freight', checkbox: 'freightOn', panel: 'proc-fc', state: 'freightState', cost: 'freightTileCost' },
+    ];
+    let activeProcessId = 'prt';
 
     function round2(n) {
       if (!isFinite(n)) return null;
@@ -1316,6 +1973,53 @@
     function readPct(el) {
       const v = parseFloat(el.value);
       return isFinite(v) ? v : 0;
+    }
+
+    function processDef(key) {
+      return PROCESS_DEFS.find(def => def.key === key);
+    }
+
+    function moneyShort(n) {
+      return isFinite(n) ? `₹ ${round2(n).toLocaleString('en-IN')}` : '—';
+    }
+
+    function processCostLabel(perSheet, total) {
+      if (isFinite(perSheet)) return `${moneyShort(perSheet)} / sheet`;
+      if (isFinite(total)) return `${moneyShort(total)} total`;
+      return '—';
+    }
+
+    function syncProcessPanels() {
+      const activeDefs = PROCESS_DEFS.filter(def => {
+        const cb = $(def.checkbox);
+        return cb && cb.checked;
+      });
+      if (!activeDefs.some(def => def.key === activeProcessId)) {
+        activeProcessId = activeDefs.length ? activeDefs[0].key : '';
+      }
+      PROCESS_DEFS.forEach(def => {
+        const on = !!($(def.checkbox) && $(def.checkbox).checked);
+        const panel = $(def.panel);
+        if (panel) panel.classList.toggle('active-detail', on && def.key === activeProcessId);
+      });
+    }
+
+    function setProcessTile(key, on, ownReady, ready, perSheet, total) {
+      const def = processDef(key);
+      if (!def) return false;
+      const tile = document.querySelector(`[data-process-option="${key}"]`);
+      const stateEl = $(def.state);
+      const costEl = $(def.cost);
+      const state = !on ? 'Not used' : (ready ? 'Ready' : (ownReady ? 'Need Step 1' : 'Needs input'));
+      if (tile) {
+        tile.classList.toggle('is-off', !on);
+        tile.classList.toggle('is-ready', on && ready);
+        tile.classList.toggle('needs-input', on && !ready);
+        tile.classList.toggle('is-current', on && key === activeProcessId);
+      }
+      if (stateEl) stateEl.textContent = state;
+      if (costEl) costEl.textContent = on ? processCostLabel(perSheet, total) : '—';
+      return on && ready;
     }
 
     function recompute() {
@@ -1345,11 +2049,6 @@
       }
       const hasQty = isFinite(effectiveSheets) && effectiveSheets > 0;
       const jobQty = effectiveSheets; // alias kept for downstream code
-      // Wastage uplift: per-sheet rates are paid for every processed sheet
-      // (incl. waste), so cost-per-effective-sheet = base × totalSheets / effective.
-      const upliftFactor = (hasQty && isFinite(totalSheets) && totalSheets > 0)
-        ? totalSheets / effectiveSheets
-        : 1;
 
       let wSheet_g = NaN, wPack_kg = NaN, cPack = NaN, cSheet = NaN;
 
@@ -1396,6 +2095,16 @@
       const lbOn      = isOn('lbOn');      procToggle('proc-lb',     lbOn);
       const designOn  = isOn('designOn');  procToggle('proc-design', designOn);
       const freightOn = isOn('freightOn'); procToggle('proc-fc',     freightOn);
+      const activeProcessCount = [prtOn, uvOn, uvpOn, crystOn, leafOn, lbOn, designOn, freightOn]
+        .filter(Boolean).length;
+      let readyProcessCount = 0;
+      const markProcess = (...args) => {
+        if (setProcessTile(...args)) readyProcessCount += 1;
+      };
+      syncProcessPanels();
+      if ($('processEmpty')) {
+        $('processEmpty').style.display = activeProcessCount ? 'none' : 'block';
+      }
       $('jobTotal').textContent = hasQty ? `${effectiveSheets.toLocaleString('en-IN')} sheets` : '—';
       if (hasPackets && hasPack) {
         const base = `${packets} packets × ${pack} pack × ${cuts} cuts`;
@@ -1419,6 +2128,7 @@
         ['cost / pack',  fmt(round2(prtPerPack),  ' ₹')],
         ['total',        fmt(round2(prtTotal),    ' ₹')],
       ]);
+      markProcess('prt', prtOn, isFinite(prtLotCost), isFinite(prtPerSheet), prtPerSheet, prtTotal);
 
       // 2. Leaf — base rate = L × B × ₹ ÷ 100 (per processed sheet);
       // total = max(base × totalSheets, min); /sheet displayed = total ÷ effective
@@ -1444,6 +2154,9 @@
         ['cost / sheet', fmt(round2(leafPerSheet), ' ₹')],
         ['total',        fmt(round2(leafTotal),    leafFloored ? ' ₹ (min)' : ' ₹')],
       ]);
+      const leafOwnReady = isFinite(leafL) && isFinite(leafB) && isFinite(leafRate) &&
+        leafL > 0 && leafB > 0 && leafRate >= 0;
+      markProcess('leaf', leafOn, leafOwnReady, isFinite(leafPerSheet) && isFinite(leafTotal), leafPerSheet, leafTotal);
 
       // 3. Leaf Block — flat charge spread over all sheets
       const lbCost  = readNum($('lbCost'));
@@ -1453,6 +2166,7 @@
         ['cost / sheet', fmt(round2(lbPerSheet), ' ₹')],
         ['total',        fmt(round2(lbTotal),    ' ₹')],
       ]);
+      markProcess('lb', lbOn, isFinite(lbCost), isFinite(lbPerSheet), lbPerSheet, lbTotal);
 
       // 4. UV Hybrid — 1 paisa (₹0.01) covers `uvCov` sq.in;
       // base /sheet ₹ = (L × W) ÷ uvCov ÷ 100; total = base × totalSheets
@@ -1474,6 +2188,9 @@
         ['cost / sheet', fmt(round2(uvPerSheet), ' ₹')],
         ['total',        fmt(round2(uvTotal),    ' ₹')],
       ]);
+      const uvOwnReady = isFinite(uvL) && isFinite(uvW) && isFinite(uvCov) &&
+        uvL > 0 && uvW > 0 && uvCov > 0;
+      markProcess('uv', uvOn, uvOwnReady, isFinite(uvPerSheet) && isFinite(uvTotal), uvPerSheet, uvTotal);
 
       // 5. UV Hybrid Plate — flat charge spread over all sheets
       const uvpCost  = readNum($('uvpCost'));
@@ -1483,6 +2200,7 @@
         ['cost / sheet', fmt(round2(uvpPerSheet), ' ₹')],
         ['total',        fmt(round2(uvpTotal),    ' ₹')],
       ]);
+      markProcess('uvp', uvpOn, isFinite(uvpCost), isFinite(uvpPerSheet), uvpPerSheet, uvpTotal);
 
       // 6. Crystal · Matt · Screen — each shown per-sheet, plus group total
       // Crystal & Matt are per-processed-sheet rates → uplift for display.
@@ -1524,6 +2242,11 @@
         ['screen /sheet',  fmt(round2(screenPerSheet), ' ₹')],
         ['group total',    fmt(round2(crystGroup),     ' ₹')],
       ]);
+      const mattOwnReady = isFinite(mattL) && isFinite(mattB) && isFinite(mattCov) &&
+        mattL > 0 && mattB > 0 && mattCov > 0;
+      const crystOwnReady = isFinite(crystRate) || isFinite(screenCost) || mattOwnReady;
+      const crystGroupPerSheet = (isFinite(crystGroup) && hasQty) ? crystGroup / jobQty : NaN;
+      markProcess('cryst', crystOn, crystOwnReady, isFinite(crystGroupPerSheet), crystGroupPerSheet, crystGroup);
 
       // 7. Design — flat ÷ effective sheets
       const designCost = readNum($('designCost'));
@@ -1533,6 +2256,7 @@
         ['cost / sheet', fmt(round2(designPerSheet), ' ₹')],
         ['total',        fmt(round2(designTotal),    ' ₹')],
       ]);
+      markProcess('design', designOn, isFinite(designCost), isFinite(designPerSheet), designPerSheet, designTotal);
 
       // 8. Freight / Cartage — flat ÷ effective sheets
       const freightCost = readNum($('freightCost'));
@@ -1542,6 +2266,13 @@
         ['cost / sheet', fmt(round2(freightPerSheet), ' ₹')],
         ['total',        fmt(round2(freightTotal),    ' ₹')],
       ]);
+      markProcess('freight', freightOn, isFinite(freightCost), isFinite(freightPerSheet), freightPerSheet, freightTotal);
+
+      if ($('processCount')) {
+        const activeText = activeProcessCount === 1 ? '1 active' : `${activeProcessCount} active`;
+        const readyText = readyProcessCount === 1 ? '1 ready' : `${readyProcessCount} ready`;
+        $('processCount').textContent = `${activeText} · ${readyText}`;
+      }
 
       // Grand totals across all extras
       const allTotals = [prtTotal, leafTotal, lbTotal, uvTotal, uvpTotal, crystGroup, designTotal, freightTotal].filter(isFinite);
@@ -1596,13 +2327,13 @@
       if (isFinite(corrL) && isFinite(corrW) && corrL > 0 && corrW > 0 && corrTotalGsm > 0) {
         corrWSheet_g = (corrL * corrW * corrTotalGsm) / 1540;
         if (isFinite(corrRollRate) && corrRollRate >= 0) {
-          // base = per processed sheet (incl. tax). Display uplifts to per-effective.
-          const base = (corrWSheet_g / 1000) * corrRollRate * (1 + corrTaxPct / 100);
-          corrCSheet = base * upliftFactor;
+          // Wastage isn't applied to corrugation — /sheet stays at base rate.
+          corrCSheet = (corrWSheet_g / 1000) * corrRollRate * (1 + corrTaxPct / 100);
         }
       }
 
-      // Pasting: base /sheet = max((L × W) ÷ factor, ₹1); show 40×40 ref inline.
+      // Pasting: /sheet = max((L × W) ÷ factor, ₹1); show 40×40 ref inline.
+      // No wastage uplift on this step.
       const factorEff = isFinite(pasteFactor) && pasteFactor > 0 ? pasteFactor : NaN;
       $('pasteRefHint').textContent = isFinite(factorEff)
         ? `(40 × 40 = ₹${(1600 / factorEff).toFixed(2)})`
@@ -1610,8 +2341,7 @@
       if (isFinite(corrL) && isFinite(corrW) && isFinite(factorEff) &&
           corrL > 0 && corrW > 0) {
         const raw = (corrL * corrW) / factorEff;
-        const pasteBase = Math.max(raw, 1); // ₹1/sheet minimum on the base rate
-        corrPasteSheet = pasteBase * upliftFactor;
+        corrPasteSheet = Math.max(raw, 1);
       }
 
       const corrParts = [corrCSheet, corrPasteSheet].filter(isFinite);
@@ -1635,26 +2365,25 @@
       const packCost       = readNum($('packCost'));
       const finishFreight  = readNum($('finishFreight'));
 
-      // All five finishing rates are per-processed-sheet inputs.
-      // Total = base × totalSheets; displayed /sheet = total ÷ effectiveSheets.
+      // Wastage isn't applied to finishing — /sheet stays at base rate,
+      // and totals are computed against effectiveSheets (post-wastage count).
 
       // 1. Die Cutting
       let dieCutPerSheet = NaN, dieCutTotal = NaN;
       if (isFinite(dieCut)) {
-        if (hasQty) { dieCutTotal = dieCut * totalSheets; dieCutPerSheet = dieCutTotal / effectiveSheets; }
-        else { dieCutPerSheet = dieCut; }
+        dieCutPerSheet = dieCut;
+        if (hasQty) dieCutTotal = dieCut * effectiveSheets;
       }
       setFoot('dieCutFoot', [
         ['cost / sheet', fmt(round2(dieCutPerSheet), ' ₹')],
         ['total',        fmt(round2(dieCutTotal),    ' ₹')],
       ]);
 
-      // 2. Side Pasting — base /sheet = ₹/box × boxes/sheet
-      let sidePasteBase = NaN, sidePastePerSheet = NaN, sidePasteTotal = NaN;
+      // 2. Side Pasting — /sheet = ₹/box × boxes/sheet
+      let sidePastePerSheet = NaN, sidePasteTotal = NaN;
       if (isFinite(sidePaste)) {
-        sidePasteBase = sidePaste * boxesPerSheet;
-        if (hasQty) { sidePasteTotal = sidePasteBase * totalSheets; sidePastePerSheet = sidePasteTotal / effectiveSheets; }
-        else { sidePastePerSheet = sidePasteBase; }
+        sidePastePerSheet = sidePaste * boxesPerSheet;
+        if (hasQty) sidePasteTotal = sidePastePerSheet * effectiveSheets;
       }
       setFoot('sidePasteFoot', [
         ['rate × boxes', `${isFinite(sidePaste) ? round2(sidePaste) : '—'} × ${boxesPerSheet}`],
@@ -1662,12 +2391,11 @@
         ['total',        fmt(round2(sidePasteTotal),    ' ₹')],
       ]);
 
-      // 3. Stitching — base /sheet = pins × ₹/pin
-      let stitchBase = NaN, stitchPerSheet = NaN, stitchTotal = NaN;
+      // 3. Stitching — /sheet = pins × ₹/pin
+      let stitchPerSheet = NaN, stitchTotal = NaN;
       if (isFinite(stitchPins) && isFinite(stitchPerPin) && stitchPins >= 0 && stitchPerPin >= 0) {
-        stitchBase = stitchPins * stitchPerPin;
-        if (hasQty) { stitchTotal = stitchBase * totalSheets; stitchPerSheet = stitchTotal / effectiveSheets; }
-        else { stitchPerSheet = stitchBase; }
+        stitchPerSheet = stitchPins * stitchPerPin;
+        if (hasQty) stitchTotal = stitchPerSheet * effectiveSheets;
       }
       setFoot('stitchFoot', [
         ['cost / sheet', fmt(round2(stitchPerSheet), ' ₹')],
@@ -1677,8 +2405,8 @@
       // 4. Packing
       let packPerSheet = NaN, packTotal = NaN;
       if (isFinite(packCost)) {
-        if (hasQty) { packTotal = packCost * totalSheets; packPerSheet = packTotal / effectiveSheets; }
-        else { packPerSheet = packCost; }
+        packPerSheet = packCost;
+        if (hasQty) packTotal = packCost * effectiveSheets;
       }
       setFoot('packFoot', [
         ['cost / sheet', fmt(round2(packPerSheet), ' ₹')],
@@ -1688,8 +2416,8 @@
       // 5. Freight (per-sheet — separate from Step 2's flat freight)
       let finishFreightPerSheet = NaN, finishFreightTotal = NaN;
       if (isFinite(finishFreight)) {
-        if (hasQty) { finishFreightTotal = finishFreight * totalSheets; finishFreightPerSheet = finishFreightTotal / effectiveSheets; }
-        else { finishFreightPerSheet = finishFreight; }
+        finishFreightPerSheet = finishFreight;
+        if (hasQty) finishFreightTotal = finishFreight * effectiveSheets;
       }
       setFoot('finishFreightFoot', [
         ['cost / sheet', fmt(round2(finishFreightPerSheet), ' ₹')],
@@ -1718,7 +2446,6 @@
       const anyPart = isFinite(cSheet) || isFinite(exSheet) || isFinite(corrGrandSheet) || isFinite(finishSheet);
       const gTotal = anyPart ? (gPaperPart + gExPart + gCorrPart + gFinishPart) : NaN;
       const gPerBox = (isFinite(gTotal) && boxesPerSheet > 0) ? gTotal / boxesPerSheet : NaN;
-      const gJob = (isFinite(gTotal) && hasQty) ? gTotal * effectiveSheets : NaN;
 
       $('gPaper').innerHTML  = fmt(round2(cSheet),         ' ₹');
       $('gExtras').innerHTML = fmt(round2(exSheet),        ' ₹');
@@ -1726,9 +2453,73 @@
       $('gFinish').innerHTML = fmt(round2(finishSheet),    ' ₹');
       $('gTotal').innerHTML  = fmt(round2(gTotal),         ' ₹');
       $('gPerBox').innerHTML = fmt(round2(gPerBox),        ' ₹');
-      $('gJob').innerHTML    = isFinite(gJob)
-        ? `${round2(gJob).toLocaleString('en-IN')}<span class="unit"> ₹</span>`
+
+      // ===== PRICING (Profit % + Sold Rate) =====
+      const profitPct = parseFloat($('profitPct').value);
+      const soldRate  = parseFloat($('soldRate').value);
+      const inr = (n) => round2(n).toLocaleString('en-IN');
+
+      // Profit % tab — selling price derived from cost per box
+      let sellBox = NaN, profitBox = NaN, sellJob = NaN;
+      if (isFinite(gPerBox) && isFinite(profitPct)) {
+        sellBox   = gPerBox * (1 + profitPct / 100);
+        profitBox = sellBox - gPerBox;
+        if (isFinite(boxesInJob)) sellJob = sellBox * boxesInJob;
+      }
+      $('sellBox').innerHTML   = fmt(round2(sellBox),   ' ₹');
+      $('profitBox').innerHTML = fmt(round2(profitBox), ' ₹');
+      $('sellJob').innerHTML   = isFinite(sellJob)
+        ? `${inr(sellJob)}<span class="unit"> ₹</span>`
         : '—';
+
+      // Sold Rate tab — back-solve profit % and margin %
+      let soldProfitBox = NaN, soldProfitPct = NaN, soldMarginPct = NaN, soldJobRev = NaN;
+      if (isFinite(gPerBox) && isFinite(soldRate)) {
+        soldProfitBox = soldRate - gPerBox;
+        if (gPerBox > 0) soldProfitPct = (soldProfitBox / gPerBox) * 100;
+        if (soldRate > 0) soldMarginPct = (soldProfitBox / soldRate) * 100;
+        if (isFinite(boxesInJob)) soldJobRev = soldRate * boxesInJob;
+      }
+      const lossClass = (el, val) => el.classList.toggle('warn', isFinite(val) && val < 0);
+      $('soldProfitBox').innerHTML = fmt(round2(soldProfitBox), ' ₹');
+      $('soldProfitPct').innerHTML = fmt(round2(soldProfitPct), ' %');
+      $('soldMarginPct').innerHTML = fmt(round2(soldMarginPct), ' %');
+      $('soldJobRev').innerHTML    = isFinite(soldJobRev)
+        ? `${inr(soldJobRev)}<span class="unit"> ₹</span>`
+        : '—';
+      lossClass($('soldProfitBox'), soldProfitBox);
+      lossClass($('soldProfitPct'), soldProfitPct);
+      lossClass($('soldMarginPct'), soldMarginPct);
+
+      // ===== Mini summaries on collapsed step cards =====
+      const mini = (n) => isFinite(n) ? `₹ ${round2(n)} / sheet` : '';
+      $('mini-paper').textContent  = mini(cSheet);
+      $('mini-extras').textContent = mini(exSheet);
+      $('mini-corr').textContent   = mini(corrGrandSheet);
+      $('mini-finish').textContent = mini(finishSheet);
+
+      // ===== Sticky compact summary content =====
+      const sbName = $('sbName'), sbModule = $('sbModule');
+      const partyName = ($('fullName') && $('fullName').value.trim()) || '';
+      const modName   = ($('moduleName') && $('moduleName').value.trim()) || '';
+      sbName.textContent = partyName || 'Untitled quote';
+      sbModule.textContent = modName ? ` · ${modName}` : '';
+      $('sbSheet').innerHTML = isFinite(gTotal) ? `₹ ${round2(gTotal)}` : '—';
+      $('sbCost').innerHTML = isFinite(gPerBox) ? `₹ ${round2(gPerBox)}` : '—';
+      const sbSell = $('sbSell'), sbSellK = $('sbSellK');
+      if (isFinite(soldRate) && isFinite(gPerBox)) {
+        sbSellK.textContent = 'Sold / box';
+        sbSell.innerHTML = `₹ ${round2(soldRate)}`;
+        sbSell.classList.toggle('warn', soldRate < gPerBox);
+      } else if (isFinite(sellBox)) {
+        sbSellK.textContent = 'Sell / box';
+        sbSell.innerHTML = `₹ ${round2(sellBox)}`;
+        sbSell.classList.remove('warn');
+      } else {
+        sbSellK.textContent = 'Sell / box';
+        sbSell.innerHTML = '—';
+        sbSell.classList.remove('warn');
+      }
     }
 
     function setFoot(footId, pairs) {
@@ -1740,6 +2531,8 @@
     }
 
     inputs.forEach(el => el.addEventListener('input', recompute));
+    ['fullName', 'moduleName'].forEach(id =>
+      $(id).addEventListener('input', recompute));
     // selects don't fire 'input' on all browsers; bind change too
     ['corrType', 'corrPlies', 'corrGsmMode'].forEach(id =>
       $(id).addEventListener('change', recompute));
@@ -1765,6 +2558,126 @@
     ['corrType', 'corrPlies', 'corrGsmMode'].forEach(id =>
       $(id).addEventListener('change', updatePlyVisibility));
     updatePlyVisibility();
+
+    // Pricing tabs (Profit % ↔ Sold Rate)
+    document.querySelectorAll('.pricing-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.dataset.tab;
+        document.querySelectorAll('.pricing-tab').forEach(b =>
+          b.classList.toggle('active', b === btn));
+        document.querySelectorAll('.pricing-panel').forEach(p =>
+          p.classList.toggle('active', p.id === 'panel-' + tab));
+      });
+    });
+
+    // Collapsible step cards — click the header to expand/collapse
+    document.querySelectorAll('.collapsible .card-head').forEach(head => {
+      head.addEventListener('click', () => {
+        head.parentElement.classList.toggle('collapsed');
+      });
+    });
+
+    document.querySelectorAll('.process-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const def = processDef(btn.dataset.process);
+        if (!def) return;
+        const checkbox = $(def.checkbox);
+        if (checkbox && !checkbox.checked) checkbox.checked = true;
+        activeProcessId = def.key;
+        recompute();
+        const panel = $(def.panel);
+        if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    });
+
+    // Bottom total bar — visible while the app is open
+    const stickybar = $('stickybar');
+    $('sbTop').addEventListener('click', () =>
+      window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+    // Print Quote — fill the print-only block then trigger window.print()
+    function buildPrintQuote() {
+      const txt = (id) => {
+        const el = $(id);
+        return el ? (el.textContent || '').trim() : '';
+      };
+      const val = (id) => $(id) ? $(id).value || '' : '';
+      const today = new Date().toLocaleDateString('en-IN', {
+        year: 'numeric', month: 'short', day: 'numeric'
+      });
+      const party = val('fullName') || '—';
+      const mod   = val('moduleName');
+      const L = val('length'), W = val('width'), gsm = val('gsm');
+      const corrL = val('corrL'), corrW = val('corrW');
+      const bps = val('boxesPerSheet') || '1';
+      const packets = val('packets'), pack = val('pack'), cuts = val('cuts') || '1';
+      const wastage = val('wastage') || '0';
+      const profitPct = val('profitPct'), soldRate = val('soldRate');
+
+      const row = (l, v) => v ? `<tr><td class="label">${l}</td><td class="val">${v}</td></tr>` : '';
+      const costSheet = txt('gTotal'), costBox = txt('gPerBox');
+      const sellBox   = txt('sellBox') || txt('soldProfitBox');
+      const sellPerBoxLabel = soldRate ? `Sold rate / box` : (profitPct ? `Selling / box` : '');
+      const sellPerBoxVal   = soldRate ? `₹ ${soldRate}` : (profitPct ? txt('sellBox') : '');
+      const jobRev = soldRate ? txt('soldJobRev') : (profitPct ? txt('sellJob') : '');
+      const profitInfo = soldRate
+        ? `<div class="row"><span>Profit / box</span><span>${txt('soldProfitBox')}</span></div>
+           <div class="row"><span>Profit %</span><span>${txt('soldProfitPct')}</span></div>
+           <div class="row"><span>Margin %</span><span>${txt('soldMarginPct')}</span></div>`
+        : (profitPct
+            ? `<div class="row"><span>Profit %</span><span>${profitPct} %</span></div>
+               <div class="row"><span>Profit / box</span><span>${txt('profitBox')}</span></div>`
+            : '');
+
+      $('printQuote').innerHTML = `
+        <div class="print-quote">
+          <h1>Quote — ${escapeHtml(party)}</h1>
+          <div class="meta-row">
+            <span>${mod ? 'Module: <b>' + escapeHtml(mod) + '</b>' : ''}</span>
+            <span>${today}</span>
+          </div>
+
+          <h3>Paper</h3>
+          <table>
+            ${row('Sheet size', (L && W) ? `${L} × ${W} in` : '')}
+            ${row('Grammage', gsm ? `${gsm} gsm` : '')}
+            ${row('Packets × pack × cuts', (packets && pack) ? `${packets} × ${pack} × ${cuts}` : '')}
+            ${row('Wastage', wastage !== '0' ? `${wastage} sheets` : '')}
+            ${row('Boxes / sheet', bps)}
+            ${row('Total boxes in job', txt('finishBoxesTotal'))}
+          </table>
+
+          ${(corrL && corrW) ? `
+          <h3>Corrugation</h3>
+          <table>
+            ${row('Sheet size', `${corrL} × ${corrW} in`)}
+          </table>` : ''}
+
+          <h3>Cost Breakdown (per sheet)</h3>
+          <table>
+            ${row('Paper', txt('gPaper'))}
+            ${row('Extras', txt('gExtras'))}
+            ${row('Corrugation', txt('gCorr'))}
+            ${row('Finishing', txt('gFinish'))}
+          </table>
+
+          <div class="totals">
+            <div class="row"><span>Cost / sheet</span><span>${costSheet}</span></div>
+            <div class="row grand"><span>Cost / box</span><span>${costBox}</span></div>
+            ${sellPerBoxLabel ? `<div class="row" style="margin-top:8px;"><span>${sellPerBoxLabel}</span><span>${sellPerBoxVal}</span></div>` : ''}
+            ${profitInfo}
+            ${jobRev ? `<div class="row grand"><span>Job revenue</span><span>${jobRev}</span></div>` : ''}
+          </div>
+        </div>
+      `;
+    }
+    function printQuote() {
+      buildPrintQuote();
+      // Let the DOM settle before invoking print
+      setTimeout(() => window.print(), 30);
+    }
+    $('printBtn').addEventListener('click', printQuote);
+    $('sbPrint').addEventListener('click', printQuote);
 
     recompute();
 
@@ -1825,6 +2738,7 @@
       $('corrTax').value       = '12';
       $('pasteFactor').value   = '500';
       $('boxesPerSheet').value = '1';
+      activeProcessId = 'prt';
       updatePlyVisibility();
       recompute();
     }
@@ -1832,6 +2746,8 @@
     function showApp() {
       $('authOverlay').style.display = 'none';
       $('mainApp').style.display = '';
+      stickybar.classList.add('show');
+      stickybar.setAttribute('aria-hidden', 'false');
       const username = currentUser.email.replace(EMAIL_DOMAIN, '');
       $('userTag').textContent = username;
       loadHistory();
@@ -1840,6 +2756,8 @@
     function showLogin() {
       $('mainApp').style.display = 'none';
       $('authOverlay').style.display = '';
+      stickybar.classList.remove('show');
+      stickybar.setAttribute('aria-hidden', 'true');
       $('authUser').focus();
     }
 
@@ -2054,9 +2972,12 @@
     $('historyCloseBtn').addEventListener('click', () => $('historyPanel').style.display = 'none');
     $('historySearch').addEventListener('input', renderHistory);
     $('historyModuleFilter').addEventListener('change', renderHistory);
-    // Checkbox toggles in Extras: gray-out + re-total live
-    ['prtOn','uvOn','uvpOn','crystOn','leafOn','lbOn','designOn','freightOn'].forEach(id => {
-      $(id).addEventListener('change', recompute);
+    // Top process toggles decide which process tabs are used.
+    PROCESS_DEFS.forEach(def => {
+      $(def.checkbox).addEventListener('change', () => {
+        if ($(def.checkbox).checked) activeProcessId = def.key;
+        recompute();
+      });
     });
     $('historyList').addEventListener('click', e => {
       const btn = e.target.closest('button');
