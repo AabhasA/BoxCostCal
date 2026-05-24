@@ -516,12 +516,12 @@
     <div class="job-bar">
       <div class="grp">
         <label for="moduleName">Module</label>
-        <input id="moduleName" type="text" list="moduleList" placeholder="e.g. Std 5-ply" autocomplete="off">
+        <input id="moduleName" type="text" list="moduleList" autocomplete="off">
         <datalist id="moduleList"></datalist>
       </div>
       <div class="grp">
         <label for="fullName">Party</label>
-        <input id="fullName" type="text" placeholder="e.g. ABC Corp · 5000 boxes" autocomplete="off">
+        <input id="fullName" type="text" autocomplete="off">
         <button id="saveBtn">Save</button>
         <button id="duplicateBtn" class="ghost">Duplicate</button>
         <button id="newBtn" class="ghost">New</button>
@@ -565,7 +565,7 @@
         <div class="field">
           <label for="length">Length</label>
           <div class="input-wrap">
-            <input id="length" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 36">
+            <input id="length" type="number" inputmode="decimal" step="0.1" min="0">
             <span class="suffix">inches</span>
           </div>
         </div>
@@ -573,7 +573,7 @@
         <div class="field">
           <label for="width">Width</label>
           <div class="input-wrap">
-            <input id="width" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 24">
+            <input id="width" type="number" inputmode="decimal" step="0.1" min="0">
             <span class="suffix">inches</span>
           </div>
         </div>
@@ -581,7 +581,7 @@
         <div class="field">
           <label for="gsm">Grammage</label>
           <div class="input-wrap">
-            <input id="gsm" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 180">
+            <input id="gsm" type="number" inputmode="decimal" step="1" min="0">
             <span class="suffix">gsm</span>
           </div>
         </div>
@@ -589,7 +589,7 @@
         <div class="field">
           <label for="pack">Pack size (mode of packing)</label>
           <div class="input-wrap">
-            <input id="pack" type="number" inputmode="numeric" step="1" min="1" placeholder="e.g. 100">
+            <input id="pack" type="number" inputmode="numeric" step="1" min="1">
             <span class="suffix">sheets/pack</span>
           </div>
         </div>
@@ -597,7 +597,7 @@
         <div class="field">
           <label for="packets">Number of packets</label>
           <div class="input-wrap">
-            <input id="packets" type="number" inputmode="numeric" step="1" min="1" placeholder="e.g. 50">
+            <input id="packets" type="number" inputmode="numeric" step="1" min="1">
             <span class="suffix">packets</span>
           </div>
         </div>
@@ -605,7 +605,7 @@
         <div class="field">
           <label for="cuts">Cuts per sheet</label>
           <div class="input-wrap">
-            <input id="cuts" type="number" inputmode="numeric" step="1" min="1" placeholder="e.g. 1">
+            <input id="cuts" type="number" inputmode="numeric" step="1" min="1">
             <span class="suffix">pcs/sheet</span>
           </div>
         </div>
@@ -613,7 +613,7 @@
         <div class="field">
           <label for="wastage">Wastage</label>
           <div class="input-wrap">
-            <input id="wastage" type="number" inputmode="numeric" step="1" min="0" placeholder="e.g. 20">
+            <input id="wastage" type="number" inputmode="numeric" step="1" min="0">
             <span class="suffix">sheets</span>
           </div>
         </div>
@@ -621,7 +621,7 @@
         <div class="field">
           <label for="wInc">Weight increase</label>
           <div class="input-wrap">
-            <input id="wInc" type="number" inputmode="decimal" step="0.1" placeholder="e.g. 5">
+            <input id="wInc" type="number" inputmode="decimal" step="0.1">
             <span class="suffix">%</span>
           </div>
         </div>
@@ -632,7 +632,7 @@
         <div class="field">
           <label for="rate">Paper rate</label>
           <div class="input-wrap">
-            <input id="rate" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 65">
+            <input id="rate" type="number" inputmode="decimal" step="0.1" min="0">
             <span class="suffix">₹ / kg</span>
           </div>
         </div>
@@ -640,7 +640,7 @@
         <div class="field">
           <label for="cInc">Cost increase</label>
           <div class="input-wrap">
-            <input id="cInc" type="number" inputmode="decimal" step="0.1" placeholder="e.g. 10">
+            <input id="cInc" type="number" inputmode="decimal" step="0.1">
             <span class="suffix">%</span>
           </div>
         </div>
@@ -648,7 +648,7 @@
         <div class="field">
           <label for="tax">Tax</label>
           <div class="input-wrap">
-            <input id="tax" type="number" inputmode="decimal" step="0.1" placeholder="e.g. 12">
+            <input id="tax" type="number" inputmode="decimal" step="0.1">
             <span class="suffix">%</span>
           </div>
         </div>
@@ -697,7 +697,7 @@
           <div class="field">
             <label for="prtLotCost">Cost per lot <span class="unit">(lot = total sheets)</span></label>
             <div class="input-wrap">
-              <input id="prtLotCost" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 2000">
+              <input id="prtLotCost" type="number" inputmode="decimal" step="1" min="0">
               <span class="suffix">₹</span>
             </div>
           </div>
@@ -717,21 +717,21 @@
           <div class="field">
             <label for="uvL">UV area length</label>
             <div class="input-wrap">
-              <input id="uvL" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 10">
+              <input id="uvL" type="number" inputmode="decimal" step="0.1" min="0">
               <span class="suffix">in</span>
             </div>
           </div>
           <div class="field">
             <label for="uvW">UV area width</label>
             <div class="input-wrap">
-              <input id="uvW" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 10">
+              <input id="uvW" type="number" inputmode="decimal" step="0.1" min="0">
               <span class="suffix">in</span>
             </div>
           </div>
           <div class="field">
             <label for="uvCov">Area covered per paisa <span class="unit">(1p = ₹0.01)</span></label>
             <div class="input-wrap">
-              <input id="uvCov" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 4">
+              <input id="uvCov" type="number" inputmode="decimal" step="0.1" min="0">
               <span class="suffix">sq.in / paisa</span>
             </div>
           </div>
@@ -751,7 +751,7 @@
           <div class="field">
             <label for="uvpCost">Plate cost</label>
             <div class="input-wrap">
-              <input id="uvpCost" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 800">
+              <input id="uvpCost" type="number" inputmode="decimal" step="1" min="0">
               <span class="suffix">₹</span>
             </div>
           </div>
@@ -771,35 +771,35 @@
           <div class="field">
             <label for="crystRate">Crystal rate / sheet</label>
             <div class="input-wrap">
-              <input id="crystRate" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 1.5">
+              <input id="crystRate" type="number" inputmode="decimal" step="0.1" min="0">
               <span class="suffix">₹/sheet</span>
             </div>
           </div>
           <div class="field">
             <label for="screenCost">Screen charge</label>
             <div class="input-wrap">
-              <input id="screenCost" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 400">
+              <input id="screenCost" type="number" inputmode="decimal" step="1" min="0">
               <span class="suffix">₹ flat</span>
             </div>
           </div>
           <div class="field">
             <label for="mattL">Matt length</label>
             <div class="input-wrap">
-              <input id="mattL" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 6">
+              <input id="mattL" type="number" inputmode="decimal" step="0.1" min="0">
               <span class="suffix">in</span>
             </div>
           </div>
           <div class="field">
             <label for="mattB">Matt breadth</label>
             <div class="input-wrap">
-              <input id="mattB" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 4">
+              <input id="mattB" type="number" inputmode="decimal" step="0.1" min="0">
               <span class="suffix">in</span>
             </div>
           </div>
           <div class="field">
             <label for="mattCov">Matt area / paisa <span class="unit">(1p = ₹0.01)</span></label>
             <div class="input-wrap">
-              <input id="mattCov" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 4">
+              <input id="mattCov" type="number" inputmode="decimal" step="0.1" min="0">
               <span class="suffix">sq.in / paisa</span>
             </div>
           </div>
@@ -819,28 +819,28 @@
           <div class="field">
             <label for="leafL">Leaf length</label>
             <div class="input-wrap">
-              <input id="leafL" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 8">
+              <input id="leafL" type="number" inputmode="decimal" step="0.1" min="0">
               <span class="suffix">in</span>
             </div>
           </div>
           <div class="field">
             <label for="leafB">Leaf breadth</label>
             <div class="input-wrap">
-              <input id="leafB" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 12">
+              <input id="leafB" type="number" inputmode="decimal" step="0.1" min="0">
               <span class="suffix">in</span>
             </div>
           </div>
           <div class="field">
             <label for="leafRate">Rate per 100 sq.inch</label>
             <div class="input-wrap">
-              <input id="leafRate" type="number" inputmode="decimal" step="0.01" min="0" placeholder="e.g. 1.25">
+              <input id="leafRate" type="number" inputmode="decimal" step="0.01" min="0">
               <span class="suffix">₹ / 100 sq.in</span>
             </div>
           </div>
           <div class="field">
             <label for="leafMin">Minimum charge</label>
             <div class="input-wrap">
-              <input id="leafMin" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 1000">
+              <input id="leafMin" type="number" inputmode="decimal" step="1" min="0">
               <span class="suffix">₹</span>
             </div>
           </div>
@@ -860,7 +860,7 @@
           <div class="field">
             <label for="lbCost">Block cost</label>
             <div class="input-wrap">
-              <input id="lbCost" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 1200">
+              <input id="lbCost" type="number" inputmode="decimal" step="1" min="0">
               <span class="suffix">₹</span>
             </div>
           </div>
@@ -880,7 +880,7 @@
           <div class="field">
             <label for="designCost">Design cost</label>
             <div class="input-wrap">
-              <input id="designCost" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 1500">
+              <input id="designCost" type="number" inputmode="decimal" step="1" min="0">
               <span class="suffix">₹</span>
             </div>
           </div>
@@ -900,7 +900,7 @@
           <div class="field">
             <label for="freightCost">Freight / Cartage</label>
             <div class="input-wrap">
-              <input id="freightCost" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 800">
+              <input id="freightCost" type="number" inputmode="decimal" step="1" min="0">
               <span class="suffix">₹</span>
             </div>
           </div>
@@ -939,14 +939,14 @@
         <div class="field">
           <label for="corrL">Length</label>
           <div class="input-wrap">
-            <input id="corrL" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 30">
+            <input id="corrL" type="number" inputmode="decimal" step="0.1" min="0">
             <span class="suffix">inches</span>
           </div>
         </div>
         <div class="field">
           <label for="corrW">Width</label>
           <div class="input-wrap">
-            <input id="corrW" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 20">
+            <input id="corrW" type="number" inputmode="decimal" step="0.1" min="0">
             <span class="suffix">inches</span>
           </div>
         </div>
@@ -984,7 +984,7 @@
         <div class="field">
           <label for="corrGsmSame">Grammage per ply</label>
           <div class="input-wrap">
-            <input id="corrGsmSame" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 150">
+            <input id="corrGsmSame" type="number" inputmode="decimal" step="1" min="0">
             <span class="suffix">gsm</span>
           </div>
         </div>
@@ -994,49 +994,49 @@
         <div class="field ply-field" data-ply="1">
           <label for="corrGsm1">Ply 1 grammage</label>
           <div class="input-wrap">
-            <input id="corrGsm1" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 150">
+            <input id="corrGsm1" type="number" inputmode="decimal" step="1" min="0">
             <span class="suffix">gsm</span>
           </div>
         </div>
         <div class="field ply-field" data-ply="2">
           <label for="corrGsm2">Ply 2 grammage</label>
           <div class="input-wrap">
-            <input id="corrGsm2" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 120">
+            <input id="corrGsm2" type="number" inputmode="decimal" step="1" min="0">
             <span class="suffix">gsm</span>
           </div>
         </div>
         <div class="field ply-field" data-ply="3">
           <label for="corrGsm3">Ply 3 grammage</label>
           <div class="input-wrap">
-            <input id="corrGsm3" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 150">
+            <input id="corrGsm3" type="number" inputmode="decimal" step="1" min="0">
             <span class="suffix">gsm</span>
           </div>
         </div>
         <div class="field ply-field" data-ply="4">
           <label for="corrGsm4">Ply 4 grammage</label>
           <div class="input-wrap">
-            <input id="corrGsm4" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 120">
+            <input id="corrGsm4" type="number" inputmode="decimal" step="1" min="0">
             <span class="suffix">gsm</span>
           </div>
         </div>
         <div class="field ply-field" data-ply="5">
           <label for="corrGsm5">Ply 5 grammage</label>
           <div class="input-wrap">
-            <input id="corrGsm5" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 150">
+            <input id="corrGsm5" type="number" inputmode="decimal" step="1" min="0">
             <span class="suffix">gsm</span>
           </div>
         </div>
         <div class="field ply-field" data-ply="6">
           <label for="corrGsm6">Ply 6 grammage</label>
           <div class="input-wrap">
-            <input id="corrGsm6" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 120">
+            <input id="corrGsm6" type="number" inputmode="decimal" step="1" min="0">
             <span class="suffix">gsm</span>
           </div>
         </div>
         <div class="field ply-field" data-ply="7">
           <label for="corrGsm7">Ply 7 grammage</label>
           <div class="input-wrap">
-            <input id="corrGsm7" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 150">
+            <input id="corrGsm7" type="number" inputmode="decimal" step="1" min="0">
             <span class="suffix">gsm</span>
           </div>
         </div>
@@ -1052,14 +1052,14 @@
         <div class="field">
           <label for="corrRollRate">Roll rate</label>
           <div class="input-wrap">
-            <input id="corrRollRate" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 85">
+            <input id="corrRollRate" type="number" inputmode="decimal" step="0.1" min="0">
             <span class="suffix">₹ / kg</span>
           </div>
         </div>
         <div class="field">
           <label for="corrTax">Tax</label>
           <div class="input-wrap">
-            <input id="corrTax" type="number" inputmode="decimal" step="0.1" value="12" placeholder="12">
+            <input id="corrTax" type="number" inputmode="decimal" step="0.1" value="12">
             <span class="suffix">%</span>
           </div>
         </div>
@@ -1070,7 +1070,7 @@
         <div class="field">
           <label for="pasteFactor">Divide factor <span class="unit" id="pasteRefHint">(40 × 40 = ₹3.20)</span></label>
           <div class="input-wrap">
-            <input id="pasteFactor" type="number" inputmode="decimal" step="1" min="1" value="500" placeholder="500">
+            <input id="pasteFactor" type="number" inputmode="decimal" step="1" min="1" value="500">
             <span class="suffix">sq.in / ₹</span>
           </div>
         </div>
@@ -1107,7 +1107,7 @@
         <div class="field">
           <label for="boxesPerSheet">Boxes per sheet</label>
           <div class="input-wrap">
-            <input id="boxesPerSheet" type="number" inputmode="numeric" step="1" min="1" value="1" placeholder="1">
+            <input id="boxesPerSheet" type="number" inputmode="numeric" step="1" min="1" value="1">
             <span class="suffix">boxes / sheet</span>
           </div>
         </div>
@@ -1122,7 +1122,7 @@
           <div class="field">
             <label for="dieCut">Die cutting rate</label>
             <div class="input-wrap">
-              <input id="dieCut" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 1.5">
+              <input id="dieCut" type="number" inputmode="decimal" step="0.1" min="0">
               <span class="suffix">₹/sheet</span>
             </div>
           </div>
@@ -1139,7 +1139,7 @@
           <div class="field">
             <label for="sidePaste">Side pasting rate <span class="unit">(per box)</span></label>
             <div class="input-wrap">
-              <input id="sidePaste" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 0.5">
+              <input id="sidePaste" type="number" inputmode="decimal" step="0.1" min="0">
               <span class="suffix">₹/box</span>
             </div>
           </div>
@@ -1156,14 +1156,14 @@
           <div class="field">
             <label for="stitchPins">Number of pins</label>
             <div class="input-wrap">
-              <input id="stitchPins" type="number" inputmode="numeric" step="1" min="0" placeholder="e.g. 6">
+              <input id="stitchPins" type="number" inputmode="numeric" step="1" min="0">
               <span class="suffix">pins / sheet</span>
             </div>
           </div>
           <div class="field">
             <label for="stitchPerPin">Cost per pin</label>
             <div class="input-wrap">
-              <input id="stitchPerPin" type="number" inputmode="decimal" step="0.01" min="0" placeholder="e.g. 0.05">
+              <input id="stitchPerPin" type="number" inputmode="decimal" step="0.01" min="0">
               <span class="suffix">₹/pin</span>
             </div>
           </div>
@@ -1180,7 +1180,7 @@
           <div class="field">
             <label for="packCost">Packing rate</label>
             <div class="input-wrap">
-              <input id="packCost" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 0.3">
+              <input id="packCost" type="number" inputmode="decimal" step="0.1" min="0">
               <span class="suffix">₹/sheet</span>
             </div>
           </div>
@@ -1197,7 +1197,7 @@
           <div class="field">
             <label for="finishFreight">Freight rate</label>
             <div class="input-wrap">
-              <input id="finishFreight" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 0.5">
+              <input id="finishFreight" type="number" inputmode="decimal" step="0.1" min="0">
               <span class="suffix">₹/sheet</span>
             </div>
           </div>
