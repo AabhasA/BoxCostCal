@@ -232,6 +232,24 @@
       font-weight: 600;
       margin-left: 4px;
     }
+    .proc-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .proc-toggle input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: var(--green);
+    }
+    .proc.disabled .proc-toggle { opacity: 1; }
+    .proc.disabled .proc-name { color: var(--muted); }
+    .proc.disabled .proc-formula,
+    .proc.disabled .grid,
+    .proc.disabled .proc-foot { opacity: 0.42; }
     .card + .card { margin-top: 22px; }
 
     .module-bar {
@@ -392,6 +410,13 @@
       outline: none;
     }
     .history-controls input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(23,107,91,0.12); }
+    .history-controls select {
+      padding: 7px 10px; font-size: 13px;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px; background: var(--panel-strong);
+      outline: none; min-width: 160px;
+    }
+    .history-controls select:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(23,107,91,0.12); }
     .history-list {
       max-height: 320px; overflow-y: auto;
       display: flex; flex-direction: column; gap: 6px;
@@ -404,7 +429,7 @@
     }
     .history-item {
       display: grid;
-      grid-template-columns: 1fr auto auto auto;
+      grid-template-columns: minmax(120px, 0.6fr) minmax(140px, 1.2fr) auto auto auto;
       align-items: center;
       gap: 10px;
       padding: 8px 10px;
@@ -416,6 +441,10 @@
     .history-item.current {
       border-color: var(--green);
       background: rgba(23,107,91,0.05);
+    }
+    .history-item .h-mod  {
+      font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.3px;
+      color: var(--green-dark); font-weight: 600;
     }
     .history-item .h-name { font-weight: 600; color: var(--ink); }
     .history-item .h-meta { color: var(--muted); font-size: 12px; }
@@ -486,9 +515,15 @@
 
     <div class="job-bar">
       <div class="grp">
-        <label for="jobName">Job name</label>
-        <input id="jobName" type="text" placeholder="e.g. ABC Corp · 5000 boxes">
+        <label for="moduleName">Module</label>
+        <input id="moduleName" type="text" list="moduleList" placeholder="e.g. Std 5-ply" autocomplete="off">
+        <datalist id="moduleList"></datalist>
+      </div>
+      <div class="grp">
+        <label for="fullName">Party</label>
+        <input id="fullName" type="text" placeholder="e.g. ABC Corp · 5000 boxes" autocomplete="off">
         <button id="saveBtn">Save</button>
+        <button id="duplicateBtn" class="ghost">Duplicate</button>
         <button id="newBtn" class="ghost">New</button>
       </div>
       <div class="grp">
@@ -501,7 +536,10 @@
 
     <div class="history-panel" id="historyPanel" style="display: none;">
       <div class="history-controls">
-        <input id="historySearch" type="text" placeholder="Search saved quotes…">
+        <input id="historySearch" type="text" placeholder="Search by module or party…">
+        <select id="historyModuleFilter">
+          <option value="">All modules</option>
+        </select>
         <button id="historyCloseBtn" class="ghost">Close</button>
       </div>
       <div class="history-list" id="historyList">
@@ -647,9 +685,12 @@
         <span class="calc" id="jobCalc">—</span>
       </div>
 
-      <div class="proc">
+      <div class="proc" id="proc-prt">
         <div class="proc-head">
-          <span class="proc-name">1. Printing</span>
+          <label class="proc-toggle">
+            <input type="checkbox" id="prtOn" checked>
+            <span class="proc-name">1. Printing</span>
+          </label>
           <span class="proc-formula">cost/lot ÷ total sheets → /sheet</span>
         </div>
         <div class="grid">
@@ -664,65 +705,13 @@
         <div class="proc-foot" id="prtFoot"></div>
       </div>
 
-      <div class="proc">
+      <div class="proc" id="proc-uv">
         <div class="proc-head">
-          <span class="proc-name">2. Leaf (foil)</span>
-          <span class="proc-formula">L × B × rate ÷ 100 = /sheet · × total sheets (floored at min)</span>
-        </div>
-        <div class="grid">
-          <div class="field">
-            <label for="leafL">Leaf length</label>
-            <div class="input-wrap">
-              <input id="leafL" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 8">
-              <span class="suffix">in</span>
-            </div>
-          </div>
-          <div class="field">
-            <label for="leafB">Leaf breadth</label>
-            <div class="input-wrap">
-              <input id="leafB" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 12">
-              <span class="suffix">in</span>
-            </div>
-          </div>
-          <div class="field">
-            <label for="leafRate">Rate per 100 sq.inch</label>
-            <div class="input-wrap">
-              <input id="leafRate" type="number" inputmode="decimal" step="0.01" min="0" placeholder="e.g. 1.25">
-              <span class="suffix">₹ / 100 sq.in</span>
-            </div>
-          </div>
-          <div class="field">
-            <label for="leafMin">Minimum charge</label>
-            <div class="input-wrap">
-              <input id="leafMin" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 1000">
-              <span class="suffix">₹</span>
-            </div>
-          </div>
-        </div>
-        <div class="proc-foot" id="leafFoot"></div>
-      </div>
-
-      <div class="proc">
-        <div class="proc-head">
-          <span class="proc-name">3. Leaf Block</span>
-          <span class="proc-formula">flat ÷ total sheets → /sheet</span>
-        </div>
-        <div class="grid">
-          <div class="field">
-            <label for="lbCost">Block cost</label>
-            <div class="input-wrap">
-              <input id="lbCost" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 1200">
-              <span class="suffix">₹</span>
-            </div>
-          </div>
-        </div>
-        <div class="proc-foot" id="lbFoot"></div>
-      </div>
-
-      <div class="proc">
-        <div class="proc-head">
-          <span class="proc-name">4. UV Hybrid</span>
-          <span class="proc-formula">(L × W) ÷ (sq.in per paisa × 100) = ₹/sheet · × total sheets</span>
+          <label class="proc-toggle">
+            <input type="checkbox" id="uvOn" checked>
+            <span class="proc-name">2. UV Hybrid</span>
+          </label>
+          <span class="proc-formula">(L × W) ÷ (sq.in per paisa × 100) = base /sheet · × total sheets</span>
         </div>
         <div class="grid">
           <div class="field">
@@ -750,10 +739,13 @@
         <div class="proc-foot" id="uvFoot"></div>
       </div>
 
-      <div class="proc">
+      <div class="proc" id="proc-uvp">
         <div class="proc-head">
-          <span class="proc-name">5. UV Hybrid Plate</span>
-          <span class="proc-formula">flat ÷ total sheets → /sheet</span>
+          <label class="proc-toggle">
+            <input type="checkbox" id="uvpOn" checked>
+            <span class="proc-name">3. UV Hybrid Plate</span>
+          </label>
+          <span class="proc-formula">flat ÷ effective sheets → /sheet</span>
         </div>
         <div class="grid">
           <div class="field">
@@ -767,10 +759,13 @@
         <div class="proc-foot" id="uvpFoot"></div>
       </div>
 
-      <div class="proc">
+      <div class="proc" id="proc-cryst">
         <div class="proc-head">
-          <span class="proc-name">6. Crystal · Matt · Screen</span>
-          <span class="proc-formula">crystal ₹/sheet · matt (L×B)÷(paisa×100) · screen flat ÷ total sheets</span>
+          <label class="proc-toggle">
+            <input type="checkbox" id="crystOn" checked>
+            <span class="proc-name">4. Matt / Crystal / Screen</span>
+          </label>
+          <span class="proc-formula">crystal ₹/sheet · matt (L×B)÷(paisa×100) · screen flat ÷ effective</span>
         </div>
         <div class="grid">
           <div class="field">
@@ -812,9 +807,73 @@
         <div class="proc-foot" id="crystFoot"></div>
       </div>
 
-      <div class="proc">
+      <div class="proc" id="proc-leaf">
         <div class="proc-head">
-          <span class="proc-name">7. Design</span>
+          <label class="proc-toggle">
+            <input type="checkbox" id="leafOn" checked>
+            <span class="proc-name">5. Leaf (foil)</span>
+          </label>
+          <span class="proc-formula">L × B × rate ÷ 100 = base /sheet · × total sheets (floored at min)</span>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <label for="leafL">Leaf length</label>
+            <div class="input-wrap">
+              <input id="leafL" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 8">
+              <span class="suffix">in</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="leafB">Leaf breadth</label>
+            <div class="input-wrap">
+              <input id="leafB" type="number" inputmode="decimal" step="0.1" min="0" placeholder="e.g. 12">
+              <span class="suffix">in</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="leafRate">Rate per 100 sq.inch</label>
+            <div class="input-wrap">
+              <input id="leafRate" type="number" inputmode="decimal" step="0.01" min="0" placeholder="e.g. 1.25">
+              <span class="suffix">₹ / 100 sq.in</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="leafMin">Minimum charge</label>
+            <div class="input-wrap">
+              <input id="leafMin" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 1000">
+              <span class="suffix">₹</span>
+            </div>
+          </div>
+        </div>
+        <div class="proc-foot" id="leafFoot"></div>
+      </div>
+
+      <div class="proc" id="proc-lb">
+        <div class="proc-head">
+          <label class="proc-toggle">
+            <input type="checkbox" id="lbOn" checked>
+            <span class="proc-name">6. Leaf Block</span>
+          </label>
+          <span class="proc-formula">flat ÷ effective sheets → /sheet</span>
+        </div>
+        <div class="grid">
+          <div class="field">
+            <label for="lbCost">Block cost</label>
+            <div class="input-wrap">
+              <input id="lbCost" type="number" inputmode="decimal" step="1" min="0" placeholder="e.g. 1200">
+              <span class="suffix">₹</span>
+            </div>
+          </div>
+        </div>
+        <div class="proc-foot" id="lbFoot"></div>
+      </div>
+
+      <div class="proc" id="proc-design">
+        <div class="proc-head">
+          <label class="proc-toggle">
+            <input type="checkbox" id="designOn" checked>
+            <span class="proc-name">7. Design</span>
+          </label>
           <span class="proc-formula">flat ÷ effective sheets → /sheet</span>
         </div>
         <div class="grid">
@@ -829,9 +888,12 @@
         <div class="proc-foot" id="designFoot"></div>
       </div>
 
-      <div class="proc">
+      <div class="proc" id="proc-fc">
         <div class="proc-head">
-          <span class="proc-name">8. Freight / Cartage</span>
+          <label class="proc-toggle">
+            <input type="checkbox" id="freightOn" checked>
+            <span class="proc-name">8. Freight / Cartage</span>
+          </label>
           <span class="proc-formula">flat ÷ effective sheets → /sheet</span>
         </div>
         <div class="grid">
@@ -1217,14 +1279,15 @@
       // Step 1: paper
       'length', 'width', 'gsm', 'pack', 'packets', 'cuts', 'wastage', 'wInc',
       'rate', 'cInc', 'tax',
-      // Step 2: extras
-      'prtLotCost',
-      'leafL', 'leafB', 'leafRate', 'leafMin',
-      'lbCost',
-      'uvL', 'uvW', 'uvCov',
-      'uvpCost',
-      'crystRate', 'screenCost', 'mattL', 'mattB', 'mattCov',
-      'designCost', 'freightCost',
+      // Step 2: extras (checkboxes + inputs)
+      'prtOn', 'prtLotCost',
+      'uvOn', 'uvL', 'uvW', 'uvCov',
+      'uvpOn', 'uvpCost',
+      'crystOn', 'crystRate', 'screenCost', 'mattL', 'mattB', 'mattCov',
+      'leafOn', 'leafL', 'leafB', 'leafRate', 'leafMin',
+      'lbOn', 'lbCost',
+      'designOn', 'designCost',
+      'freightOn', 'freightCost',
       // Step 3: corrugation
       'corrL', 'corrW', 'corrType', 'corrPlies', 'corrGsmMode', 'corrGsmSame',
       'corrGsm1', 'corrGsm2', 'corrGsm3', 'corrGsm4', 'corrGsm5', 'corrGsm6', 'corrGsm7',
@@ -1319,6 +1382,20 @@
 
       // ===== STEP 2: EXTRA PROCESSES =====
       // effectiveSheets, jobQty, hasQty, hasPack already computed above
+      // Checkbox gates: when off, the process contributes nothing.
+      const isOn = (id) => { const el = $(id); return el ? el.checked : true; };
+      const procToggle = (procId, on) => {
+        const el = $(procId);
+        if (el) el.classList.toggle('disabled', !on);
+      };
+      const prtOn     = isOn('prtOn');     procToggle('proc-prt',    prtOn);
+      const uvOn      = isOn('uvOn');      procToggle('proc-uv',     uvOn);
+      const uvpOn     = isOn('uvpOn');     procToggle('proc-uvp',    uvpOn);
+      const crystOn   = isOn('crystOn');   procToggle('proc-cryst',  crystOn);
+      const leafOn    = isOn('leafOn');    procToggle('proc-leaf',   leafOn);
+      const lbOn      = isOn('lbOn');      procToggle('proc-lb',     lbOn);
+      const designOn  = isOn('designOn');  procToggle('proc-design', designOn);
+      const freightOn = isOn('freightOn'); procToggle('proc-fc',     freightOn);
       $('jobTotal').textContent = hasQty ? `${effectiveSheets.toLocaleString('en-IN')} sheets` : '—';
       if (hasPackets && hasPack) {
         const base = `${packets} packets × ${pack} pack × ${cuts} cuts`;
@@ -1332,7 +1409,7 @@
       // 1. Printing — lot covers entire job, so /sheet = cost/lot ÷ total sheets
       const prtLotCost = readNum($('prtLotCost'));
       let prtPerSheet = NaN, prtPerPack = NaN, prtTotal = NaN;
-      if (isFinite(prtLotCost) && hasQty) {
+      if (prtOn && isFinite(prtLotCost) && hasQty) {
         prtPerSheet = prtLotCost / jobQty;
         if (hasPack) prtPerPack = prtPerSheet * pack;
         prtTotal = prtLotCost;
@@ -1350,7 +1427,7 @@
       const leafRate = readNum($('leafRate'));
       const leafMin  = readNum($('leafMin'));
       let leafBase = NaN, leafPerSheet = NaN, leafTotal = NaN, leafFloored = false;
-      if (isFinite(leafL) && isFinite(leafB) && leafL > 0 && leafB > 0 &&
+      if (leafOn && isFinite(leafL) && isFinite(leafB) && leafL > 0 && leafB > 0 &&
           isFinite(leafRate) && leafRate >= 0) {
         leafBase = (leafL * leafB * leafRate) / 100;
         if (hasQty) {
@@ -1370,7 +1447,7 @@
 
       // 3. Leaf Block — flat charge spread over all sheets
       const lbCost  = readNum($('lbCost'));
-      const lbTotal = isFinite(lbCost) ? lbCost : NaN;
+      const lbTotal = (lbOn && isFinite(lbCost)) ? lbCost : NaN;
       const lbPerSheet = (isFinite(lbTotal) && hasQty) ? lbTotal / jobQty : NaN;
       setFoot('lbFoot', [
         ['cost / sheet', fmt(round2(lbPerSheet), ' ₹')],
@@ -1383,7 +1460,7 @@
       const uvW    = readNum($('uvW'));
       const uvCov  = readNum($('uvCov'));
       let uvBase = NaN, uvPerSheet = NaN, uvTotal = NaN;
-      if (isFinite(uvL) && isFinite(uvW) && isFinite(uvCov) &&
+      if (uvOn && isFinite(uvL) && isFinite(uvW) && isFinite(uvCov) &&
           uvL > 0 && uvW > 0 && uvCov > 0) {
         uvBase = (uvL * uvW) / (uvCov * 100);
         if (hasQty) {
@@ -1400,7 +1477,7 @@
 
       // 5. UV Hybrid Plate — flat charge spread over all sheets
       const uvpCost  = readNum($('uvpCost'));
-      const uvpTotal = isFinite(uvpCost) ? uvpCost : NaN;
+      const uvpTotal = (uvpOn && isFinite(uvpCost)) ? uvpCost : NaN;
       const uvpPerSheet = (isFinite(uvpTotal) && hasQty) ? uvpTotal / jobQty : NaN;
       setFoot('uvpFoot', [
         ['cost / sheet', fmt(round2(uvpPerSheet), ' ₹')],
@@ -1417,7 +1494,7 @@
       const mattCov    = readNum($('mattCov'));
       let crystPerSheet = NaN, mattPerSheet = NaN, screenPerSheet = NaN;
       let crystTotal = NaN, mattTotal = NaN, screenTotal = NaN, crystGroup = NaN;
-      if (isFinite(crystRate)) {
+      if (crystOn && isFinite(crystRate)) {
         if (hasQty) {
           crystTotal = crystRate * totalSheets;
           crystPerSheet = crystTotal / effectiveSheets;
@@ -1425,7 +1502,7 @@
           crystPerSheet = crystRate;
         }
       }
-      if (isFinite(mattL) && isFinite(mattB) && isFinite(mattCov) &&
+      if (crystOn && isFinite(mattL) && isFinite(mattB) && isFinite(mattCov) &&
           mattL > 0 && mattB > 0 && mattCov > 0) {
         const mattBase = (mattL * mattB) / (mattCov * 100);
         if (hasQty) {
@@ -1435,7 +1512,7 @@
           mattPerSheet = mattBase;
         }
       }
-      if (isFinite(screenCost)) {
+      if (crystOn && isFinite(screenCost)) {
         screenTotal = screenCost;
         if (hasQty) screenPerSheet = screenCost / jobQty;
       }
@@ -1450,7 +1527,7 @@
 
       // 7. Design — flat ÷ effective sheets
       const designCost = readNum($('designCost'));
-      const designTotal = isFinite(designCost) ? designCost : NaN;
+      const designTotal = (designOn && isFinite(designCost)) ? designCost : NaN;
       const designPerSheet = (isFinite(designTotal) && hasQty) ? designTotal / jobQty : NaN;
       setFoot('designFoot', [
         ['cost / sheet', fmt(round2(designPerSheet), ' ₹')],
@@ -1459,7 +1536,7 @@
 
       // 8. Freight / Cartage — flat ÷ effective sheets
       const freightCost = readNum($('freightCost'));
-      const freightTotal = isFinite(freightCost) ? freightCost : NaN;
+      const freightTotal = (freightOn && isFinite(freightCost)) ? freightCost : NaN;
       const freightPerSheet = (isFinite(freightTotal) && hasQty) ? freightTotal / jobQty : NaN;
       setFoot('freightFoot', [
         ['cost / sheet', fmt(round2(freightPerSheet), ' ₹')],
@@ -1702,6 +1779,21 @@
     let currentQuoteId = null;
     let historyCache = [];
 
+    // Inputs can be text/number OR checkbox — these helpers normalise.
+    function getInputValue(el) {
+      if (!el) return '';
+      if (el.type === 'checkbox') return el.checked ? '1' : '0';
+      return el.value;
+    }
+    function setInputValue(el, val) {
+      if (!el) return;
+      if (el.type === 'checkbox') {
+        el.checked = (val === '1' || val === true || val === 1);
+      } else {
+        el.value = val == null ? '' : val;
+      }
+    }
+
     let statusTimer = null;
     function setStatus(msg, isError) {
       const el = $('modStatus');
@@ -1723,7 +1815,9 @@
     function clearAllInputs() {
       INPUT_IDS.forEach(id => {
         const el = $(id);
-        if (el) el.value = '';
+        if (!el) return;
+        if (el.type === 'checkbox') el.checked = true;   // default ON
+        else el.value = '';
       });
       $('corrType').value      = 'standard';
       $('corrPlies').value     = '3';
@@ -1779,20 +1873,23 @@
       await sb.auth.signOut();
       currentUser = null;
       currentQuoteId = null;
-      $('jobName').value = '';
+      $('moduleName').value = '';
+      $('fullName').value = '';
       clearAllInputs();
       showLogin();
     }
 
     async function saveQuote() {
-      const name = $('jobName').value.trim();
-      if (!name) { setStatus('Enter a job name to save.', true); return; }
+      const moduleName = $('moduleName').value.trim();
+      const fullName   = $('fullName').value.trim();
+      if (!moduleName) { setStatus('Enter a module name.', true); $('moduleName').focus(); return; }
+      if (!fullName)   { setStatus('Enter a party / full name.', true); $('fullName').focus(); return; }
       if (!currentUser) { setStatus('Not signed in.', true); return; }
 
       const data = {};
       INPUT_IDS.forEach(id => {
         const el = $(id);
-        if (el) data[id] = el.value;
+        if (el) data[id] = getInputValue(el);
       });
 
       $('saveBtn').disabled = true;
@@ -1801,20 +1898,20 @@
         if (currentQuoteId) {
           ({ data: result, error: err } = await sb
             .from('boxcostcal_quotes')
-            .update({ name, data })
+            .update({ module_name: moduleName, name: fullName, data })
             .eq('id', currentQuoteId)
             .select()
             .single());
         } else {
           ({ data: result, error: err } = await sb
             .from('boxcostcal_quotes')
-            .insert({ user_id: currentUser.id, name, data })
+            .insert({ user_id: currentUser.id, module_name: moduleName, name: fullName, data })
             .select()
             .single());
         }
         if (err) { setStatus(`Save failed: ${err.message}`, true); return; }
         currentQuoteId = result.id;
-        setStatus(`Saved "${name}".`);
+        setStatus(`Saved "${fullName}" under module "${moduleName}".`);
         await loadHistory();
       } finally {
         $('saveBtn').disabled = false;
@@ -1822,38 +1919,69 @@
     }
 
     function newQuote() {
-      const hasInput = INPUT_IDS.some(id => {
-        const el = $(id);
-        return el && el.value && el.value !== '' && el.value !== '500' && el.value !== '12' && el.value !== '1' && el.value !== '3' && el.value !== 'same' && el.value !== 'standard';
-      });
-      if ((currentQuoteId || hasInput) &&
-          !confirm('Start a new quote? Current inputs will be cleared.')) return;
+      if (!confirm('Start a new quote? Current inputs will be cleared.')) return;
       currentQuoteId = null;
-      $('jobName').value = '';
+      $('moduleName').value = '';
+      $('fullName').value = '';
       clearAllInputs();
       setStatus('New quote.');
+    }
+
+    function duplicateQuote() {
+      // Keep all inputs and the module name; drop the currentQuoteId so Save creates new.
+      currentQuoteId = null;
+      $('fullName').value = '';
+      $('fullName').focus();
+      setStatus('Duplicated — change the party name and click Save.');
+      renderHistory(); // refresh "current" highlight (none now)
     }
 
     async function loadHistory() {
       const { data, error } = await sb
         .from('boxcostcal_quotes')
-        .select('id, name, updated_at')
+        .select('id, module_name, name, updated_at')
         .order('updated_at', { ascending: false })
-        .limit(200);
+        .limit(500);
       if (error) {
         setStatus(`History load failed: ${error.message}`, true);
         return;
       }
       historyCache = data || [];
+      populateModuleLists();
       renderHistory();
+    }
+
+    function populateModuleLists() {
+      // Unique module names, sorted, used for both the top datalist and the history filter.
+      const names = Array.from(new Set(
+        historyCache.map(it => (it.module_name || '').trim()).filter(Boolean)
+      )).sort((a, b) => a.localeCompare(b));
+
+      $('moduleList').innerHTML = names
+        .map(n => `<option value="${escapeHtml(n)}"></option>`).join('');
+
+      const currentFilter = $('historyModuleFilter').value;
+      $('historyModuleFilter').innerHTML =
+        '<option value="">All modules</option>' +
+        names.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+      // Preserve selected filter if still valid
+      if (currentFilter && names.includes(currentFilter)) {
+        $('historyModuleFilter').value = currentFilter;
+      }
     }
 
     function renderHistory() {
       const list = $('historyList');
       const q = $('historySearch').value.toLowerCase().trim();
-      const items = q
-        ? historyCache.filter(it => (it.name || '').toLowerCase().includes(q))
-        : historyCache;
+      const moduleFilter = $('historyModuleFilter').value;
+      const items = historyCache.filter(it => {
+        if (moduleFilter && (it.module_name || '') !== moduleFilter) return false;
+        if (q) {
+          const blob = ((it.module_name || '') + ' ' + (it.name || '')).toLowerCase();
+          if (!blob.includes(q)) return false;
+        }
+        return true;
+      });
       if (!items.length) {
         list.innerHTML = `<div class="history-empty">${historyCache.length === 0 ? 'No saved quotes yet.' : 'No matches.'}</div>`;
         return;
@@ -1863,6 +1991,7 @@
         const stamp = d.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
         const cur = it.id === currentQuoteId ? ' current' : '';
         return `<div class="history-item${cur}" data-id="${it.id}">
+          <div class="h-mod">${escapeHtml(it.module_name || '—')}</div>
           <div class="h-name">${escapeHtml(it.name || '(untitled)')}</div>
           <div class="h-meta">${stamp}</div>
           <button class="h-load" data-id="${it.id}">Load</button>
@@ -1882,10 +2011,10 @@
       const blob = data.data || {};
       INPUT_IDS.forEach(id => {
         if (!(id in blob)) return;
-        const el = $(id);
-        if (el) el.value = blob[id];
+        setInputValue($(id), blob[id]);
       });
-      $('jobName').value = data.name || '';
+      $('moduleName').value = data.module_name || '';
+      $('fullName').value   = data.name || '';
       currentQuoteId = data.id;
       updatePlyVisibility();
       recompute();
@@ -1899,7 +2028,7 @@
       if (error) { setStatus(`Delete failed: ${error.message}`, true); return; }
       if (currentQuoteId === id) {
         currentQuoteId = null;
-        $('jobName').value = '';
+        $('fullName').value = '';
       }
       await loadHistory();
       setStatus(`Deleted "${name || 'quote'}".`);
@@ -1919,10 +2048,16 @@
     $('logoutBtn').addEventListener('click', signOut);
 
     $('saveBtn').addEventListener('click', saveQuote);
+    $('duplicateBtn').addEventListener('click', duplicateQuote);
     $('newBtn').addEventListener('click', newQuote);
     $('historyBtn').addEventListener('click', toggleHistory);
     $('historyCloseBtn').addEventListener('click', () => $('historyPanel').style.display = 'none');
     $('historySearch').addEventListener('input', renderHistory);
+    $('historyModuleFilter').addEventListener('change', renderHistory);
+    // Checkbox toggles in Extras: gray-out + re-total live
+    ['prtOn','uvOn','uvpOn','crystOn','leafOn','lbOn','designOn','freightOn'].forEach(id => {
+      $(id).addEventListener('change', recompute);
+    });
     $('historyList').addEventListener('click', e => {
       const btn = e.target.closest('button');
       if (!btn) return;
