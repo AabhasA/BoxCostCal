@@ -33,44 +33,111 @@
       color: var(--ink);
     }
     .app {
-      width: min(960px, calc(100vw - 28px));
+      width: 100%;
+      max-width: 1180px;
       margin: 0 auto;
-      padding: 24px 0 118px;
+      padding: 0 clamp(10px, 2vw, 24px) 118px;
     }
     header.top {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      margin: 0 calc(clamp(10px, 2vw, 24px) * -1) 10px;
+      padding: 10px clamp(10px, 2vw, 24px);
+      background: rgba(255, 253, 248, 0.97);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: saturate(140%) blur(10px);
+    }
+    .top-main {
       display: flex;
-      align-items: baseline;
+      align-items: center;
       justify-content: space-between;
-      margin-bottom: 20px;
+      gap: 12px;
     }
-    header.top h1 {
-      margin: 0;
-      font-size: 22px;
-      letter-spacing: 0.2px;
+    .app-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      color: var(--muted);
     }
-    header.top .sub {
+    .quote-title {
+      margin-top: 2px;
+      color: var(--ink);
+      font-size: clamp(20px, 4vw, 27px);
+      line-height: 1.05;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+    .quote-subtitle {
+      margin-top: 3px;
       color: var(--muted);
       font-size: 13px;
+      min-height: 17px;
+    }
+    .menu-button {
+      width: 44px;
+      height: 44px;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      background: var(--panel-strong);
+      color: var(--ink);
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+    .menu-button:hover {
+      border-color: var(--green);
+      color: var(--green-dark);
     }
 
     .stepper {
       display: flex;
-      gap: 8px;
-      margin-bottom: 18px;
-      flex-wrap: wrap;
+      gap: 6px;
+      margin: 0 calc(clamp(10px, 2vw, 24px) * -1) 12px;
+      padding: 8px clamp(10px, 2vw, 24px);
+      overflow-x: auto;
+      background: rgba(244, 241, 234, 0.94);
+      border-bottom: 1px solid var(--line);
+      z-index: 25;
+      scrollbar-width: none;
+    }
+    .stepper::-webkit-scrollbar {
+      display: none;
     }
     .step-chip {
-      padding: 6px 12px;
+      flex: 0 0 auto;
+      min-width: 120px;
+      padding: 9px 10px;
       border: 1px solid var(--line);
-      border-radius: 999px;
+      border-radius: 8px;
       background: var(--panel);
-      font-size: 12px;
-      color: var(--muted);
+      color: var(--ink);
+      cursor: pointer;
+      text-align: left;
     }
     .step-chip.active {
       background: var(--green);
       color: #fff;
       border-color: var(--green);
+    }
+    .step-chip .tab-title {
+      display: block;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+    .step-chip .tab-value {
+      display: block;
+      margin-top: 5px;
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 650;
+      line-height: 1.1;
+    }
+    .step-chip.active .tab-value {
+      color: rgba(255, 255, 255, 0.82);
     }
     .step-chip.pending {
       opacity: 0.55;
@@ -79,27 +146,26 @@
     .card {
       background: var(--panel);
       border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 22px;
+      border-radius: 8px;
+      box-shadow: 0 10px 28px rgba(24, 32, 31, 0.05);
+      padding: clamp(14px, 2vw, 20px);
+      margin-bottom: 14px;
     }
     .card h2 {
       margin: 0 0 4px;
-      font-size: 17px;
+      font-size: 19px;
     }
     .card .hint {
       color: var(--muted);
       font-size: 12.5px;
-      margin: 0 0 18px;
+      margin: 0 0 14px;
+      line-height: 1.35;
     }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px 18px;
-    }
-    @media (max-width: 620px) {
-      .grid { grid-template-columns: 1fr; }
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
     }
 
     .section-label {
@@ -115,7 +181,7 @@
 
     .field { display: flex; flex-direction: column; gap: 6px; }
     .field label {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--muted);
       letter-spacing: 0.2px;
       text-transform: uppercase;
@@ -132,7 +198,7 @@
     .field select {
       flex: 1;
       border: 0;
-      padding: 10px 12px;
+      padding: 11px 10px;
       font-size: 15px;
       background: transparent;
       outline: none;
@@ -156,21 +222,20 @@
     }
 
     .results {
-      margin-top: 22px;
+      margin-top: 16px;
       border-top: 1px dashed var(--line-strong);
-      padding-top: 18px;
+      padding-top: 14px;
     }
     .results-grid {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+      gap: 10px;
     }
-    @media (max-width: 760px) { .results-grid { grid-template-columns: repeat(2, 1fr); } }
     .result {
       background: var(--panel-strong);
       border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 12px 14px;
+      padding: 11px 12px;
     }
     .result .k {
       font-size: 11.5px;
@@ -180,7 +245,7 @@
     }
     .result .v {
       margin-top: 6px;
-      font-size: 19px;
+      font-size: 20px;
       font-weight: 600;
       color: var(--green-dark);
     }
@@ -475,11 +540,16 @@
       }
     }
 
-    /* Summary + pricing card pinned at top */
+    .cost-section { display: none; }
+    .cost-section.active-section { display: block; }
+
+    /* Compact pricing panel kept out of the first costing screen */
     .summary-card {
       background: linear-gradient(180deg, #ffffff, #fbf8f0);
       border-color: var(--line-strong);
+      display: none;
     }
+    .summary-card.open { display: block; }
     .summary-card .result {
       background: #fff;
     }
@@ -529,9 +599,9 @@
       display: flex;
       align-items: center;
       gap: 14px;
-      cursor: pointer;
+      cursor: default;
       user-select: none;
-      margin-bottom: 4px;
+      margin-bottom: 8px;
     }
     .collapsible .card-head h2 { margin: 0; flex: 0 0 auto; }
     .collapsible .card-head .card-mini {
@@ -543,13 +613,7 @@
       transition: opacity 0.18s;
     }
     .collapsible.collapsed .card-head .card-mini { opacity: 1; }
-    .collapsible .card-head .card-chevron {
-      color: var(--muted);
-      font-size: 13px;
-      transition: transform 0.2s;
-      width: 18px;
-      text-align: center;
-    }
+    .collapsible .card-head .card-chevron { display: none; }
     .collapsible.collapsed .card-head .card-chevron { transform: rotate(-90deg); }
     .collapsible.collapsed > :not(.card-head) { display: none; }
 
@@ -569,12 +633,13 @@
     }
     .stickybar.show { transform: translateY(0); }
     .stickybar-inner {
-      width: min(960px, calc(100vw - 28px));
+      width: min(1180px, calc(100vw - 20px));
       margin: 0 auto;
-      display: flex;
+      display: grid;
+      grid-template-columns: minmax(120px, 1fr) repeat(3, minmax(84px, auto)) auto auto;
       align-items: center;
-      gap: 18px;
-      padding: 10px 0;
+      gap: 10px;
+      padding: 9px 0;
       font-size: 13px;
     }
     .stickybar-inner .who {
@@ -594,15 +659,16 @@
       margin-bottom: 2px;
     }
     .stickybar-inner .met {
-      display: flex;
+      display: contents;
       gap: 14px;
       align-items: baseline;
     }
     .stickybar-inner .met .pair {
       display: flex;
       flex-direction: column;
-      align-items: flex-end;
+      align-items: flex-start;
       line-height: 1.1;
+      min-width: 0;
     }
     .stickybar-inner .met .k {
       font-size: 10.5px;
@@ -613,7 +679,7 @@
     .stickybar-inner .met .v {
       font-weight: 600;
       color: var(--green-dark);
-      font-size: 15px;
+      font-size: 18px;
     }
     .stickybar-inner .met .v.sell { color: var(--amber); }
     .stickybar-inner .met .v.warn { color: #b1392d; }
@@ -630,26 +696,29 @@
     @media (max-width: 620px) {
       .stickybar-inner .who { display: none; }
       .stickybar-inner {
-        width: calc(100vw - 20px);
-        gap: 8px;
-      }
-      .stickybar-inner .met {
-        flex: 1;
-        justify-content: space-between;
+        width: calc(100vw - 16px);
+        grid-template-columns: minmax(0, 1fr) auto;
         gap: 8px;
       }
       .stickybar-inner .met .pair {
         align-items: flex-start;
       }
       .stickybar-inner .met .v {
-        font-size: 14px;
+        font-size: 18px;
       }
       .stickybar-inner button {
         padding: 7px 9px;
       }
+      .stickybar-inner .met .pair:first-child,
+      .stickybar-inner .met .pair:nth-child(3) {
+        display: none;
+      }
+      #sbTop { display: none; }
     }
     @media (max-width: 430px) {
-      .stickybar-inner .met .pair:first-child { display: none; }
+      .stickybar-inner {
+        grid-template-columns: minmax(0, 1fr) auto;
+      }
     }
 
     /* Print quote view */
@@ -775,10 +844,11 @@
     .module-status {
       font-size: 12.5px;
       color: var(--green-dark);
-      margin: -8px 0 14px 14px;
+      margin: 0 0 10px;
       min-height: 16px;
       transition: opacity 0.4s;
     }
+    .module-status:empty { display: none; }
     .module-status.fading { opacity: 0; }
     .module-status.err { color: var(--red); }
 
@@ -826,30 +896,40 @@
 
     /* ===== Job bar (replaces module bar) ===== */
     .job-bar {
-      display: flex; gap: 12px; align-items: center;
-      padding: 10px 14px;
-      background: var(--panel);
+      display: none;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      align-items: end;
+      padding: 14px;
+      background: #fff;
       border: 1px solid var(--line);
       border-radius: 8px;
-      margin-bottom: 14px;
-      flex-wrap: wrap;
+      margin: 0 0 12px;
+      box-shadow: 0 12px 28px rgba(24, 32, 31, 0.08);
       font-size: 13px;
     }
-    .job-bar .grp { display: flex; align-items: center; gap: 8px; }
+    .job-bar.open { display: grid; }
+    .job-bar .grp {
+      display: grid;
+      grid-template-columns: 1fr;
+      align-items: end;
+      gap: 6px;
+    }
     .job-bar label {
       font-size: 11px; text-transform: uppercase;
       letter-spacing: 0.4px; color: var(--muted);
     }
     .job-bar input {
-      padding: 6px 10px; font-size: 13px;
+      width: 100%;
+      padding: 11px 10px; font-size: 15px;
       border: 1px solid var(--line-strong);
       border-radius: 6px; background: var(--panel-strong);
-      min-width: 220px;
+      min-width: 0;
       outline: none;
     }
     .job-bar input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(23,107,91,0.12); }
     .job-bar button {
-      padding: 6px 12px;
+      padding: 10px 12px;
       border: 1px solid var(--green); background: var(--green);
       color: #fff; border-radius: 6px;
       font-size: 13px; font-weight: 500; cursor: pointer;
@@ -863,17 +943,35 @@
     .job-bar .spacer { flex: 1; }
     .job-bar .user-tag { font-size: 12.5px; color: var(--muted); }
     .job-bar .user-tag b { color: var(--green-dark); font-weight: 600; }
+    .job-bar .actions,
+    .job-bar .session-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .job-bar .session-actions {
+      align-items: center;
+      justify-content: flex-end;
+    }
+    @media (max-width: 720px) {
+      .job-bar { grid-template-columns: 1fr; }
+      .job-bar .session-actions { justify-content: flex-start; }
+    }
 
     /* ===== History panel ===== */
     .history-panel {
-      background: var(--panel);
+      background: #fff;
       border: 1px solid var(--line);
       border-radius: 8px;
       padding: 12px 14px;
-      margin-bottom: 14px;
+      margin: 0 0 12px;
+      box-shadow: 0 12px 28px rgba(24, 32, 31, 0.08);
     }
     .history-controls {
-      display: flex; gap: 8px; margin-bottom: 10px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(140px, auto) auto;
+      gap: 8px;
+      margin-bottom: 10px;
     }
     .history-controls input {
       flex: 1; padding: 7px 10px; font-size: 13px;
@@ -929,6 +1027,16 @@
     .history-item button.h-load { border-color: var(--green); color: var(--green-dark); }
     .history-item button.h-del  { border-color: var(--line-strong); color: var(--red); }
     .history-item button:hover { background: rgba(0,0,0,0.04); }
+    @media (max-width: 720px) {
+      .history-controls { grid-template-columns: 1fr; }
+      .history-item {
+        grid-template-columns: 1fr auto auto;
+      }
+      .history-item .h-mod,
+      .history-item .h-meta {
+        grid-column: 1 / -1;
+      }
+    }
 
     .inherited {
       display: flex;
@@ -981,11 +1089,17 @@
 
   <div class="app" id="mainApp" style="display: none;">
     <header class="top">
-      <h1>Costing Sheet</h1>
-      <div class="sub">Step-wise builder</div>
+      <div class="top-main">
+        <div>
+          <div class="app-title">Costing Sheet</div>
+          <div class="quote-title" id="quoteHeaderName">New quote</div>
+          <div class="quote-subtitle" id="quoteHeaderMeta">Tap menu to set module and party</div>
+        </div>
+        <button type="button" class="menu-button" id="menuBtn" aria-label="Open actions">☰</button>
+      </div>
     </header>
 
-    <div class="job-bar">
+    <div class="job-bar" id="jobPanel">
       <div class="grp">
         <label for="moduleName">Module</label>
         <input id="moduleName" type="text" list="moduleList" autocomplete="off">
@@ -994,17 +1108,19 @@
       <div class="grp">
         <label for="fullName">Party</label>
         <input id="fullName" type="text" autocomplete="off">
+      </div>
+      <div class="grp actions">
         <button id="saveBtn">Save</button>
         <button id="duplicateBtn" class="ghost">Duplicate</button>
         <button id="newBtn" class="ghost">New</button>
       </div>
-      <div class="grp">
+      <div class="grp session-actions">
         <button id="historyBtn" class="ghost">History ▾</button>
+        <button id="pricingBtn" class="ghost">Pricing</button>
         <button id="printBtn" class="ghost">Print Quote</button>
+        <span class="user-tag">Signed in as <b id="userTag">—</b></span>
+        <button id="logoutBtn" class="ghost">Logout</button>
       </div>
-      <div class="spacer"></div>
-      <span class="user-tag">Signed in as <b id="userTag">—</b></span>
-      <button id="logoutBtn" class="ghost">Logout</button>
     </div>
 
     <div class="history-panel" id="historyPanel" style="display: none;">
@@ -1022,12 +1138,24 @@
 
     <div id="modStatus" class="module-status"></div>
 
-    <div class="stepper">
-      <div class="step-chip active">1. Paper</div>
-      <div class="step-chip active">2. Extra Processes</div>
-      <div class="step-chip active">3. Corrugation</div>
-      <div class="step-chip active">4. Finishing</div>
-    </div>
+    <nav class="stepper" id="sectionTabs" aria-label="Costing sections">
+      <button type="button" class="step-chip active" data-section="paper-card">
+        <span class="tab-title">Paper</span>
+        <span class="tab-value" id="tabPaper">—</span>
+      </button>
+      <button type="button" class="step-chip" data-section="extras-card">
+        <span class="tab-title">Extras</span>
+        <span class="tab-value" id="tabExtras">—</span>
+      </button>
+      <button type="button" class="step-chip" data-section="corr-card">
+        <span class="tab-title">Corrugation</span>
+        <span class="tab-value" id="tabCorr">—</span>
+      </button>
+      <button type="button" class="step-chip" data-section="finishing-card">
+        <span class="tab-title">Finishing</span>
+        <span class="tab-value" id="tabFinish">—</span>
+      </button>
+    </nav>
 
     <section class="card summary-card" id="summary-card">
       <h2>Grand Total</h2>
@@ -1127,7 +1255,7 @@
       </div>
     </section>
 
-    <section class="card collapsible" id="paper-card">
+    <section class="card collapsible cost-section active-section" id="paper-card">
       <div class="card-head">
         <h2>Paper Costing</h2>
         <span class="card-mini" id="mini-paper"></span>
@@ -1251,7 +1379,7 @@
       </div>
     </section>
 
-    <section class="card collapsible" id="extras-card">
+    <section class="card collapsible cost-section" id="extras-card">
       <div class="card-head">
         <h2>Extra Processes</h2>
         <span class="card-mini" id="mini-extras"></span>
@@ -1587,7 +1715,7 @@
       </div>
     </section>
 
-    <section class="card collapsible" id="corr-card">
+    <section class="card collapsible cost-section" id="corr-card">
       <div class="card-head">
         <h2>Corrugation</h2>
         <span class="card-mini" id="mini-corr"></span>
@@ -1759,7 +1887,7 @@
       </div>
     </section>
 
-    <section class="card collapsible" id="finishing-card">
+    <section class="card collapsible cost-section" id="finishing-card">
       <div class="card-head">
         <h2>Finishing &amp; Boxing</h2>
         <span class="card-mini" id="mini-finish"></span>
@@ -1954,6 +2082,7 @@
       { key: 'freight', checkbox: 'freightOn', panel: 'proc-fc', state: 'freightState', cost: 'freightTileCost' },
     ];
     let activeProcessId = 'prt';
+    let activeSectionId = 'paper-card';
 
     function round2(n) {
       if (!isFinite(n)) return null;
@@ -2020,6 +2149,29 @@
       if (stateEl) stateEl.textContent = state;
       if (costEl) costEl.textContent = on ? processCostLabel(perSheet, total) : '—';
       return on && ready;
+    }
+
+    function activateSection(sectionId) {
+      if (!$(sectionId)) return;
+      activeSectionId = sectionId;
+      document.querySelectorAll('.cost-section').forEach(section => {
+        section.classList.toggle('active-section', section.id === activeSectionId);
+      });
+      document.querySelectorAll('.step-chip').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.section === activeSectionId);
+      });
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+
+    function updateQuoteHeader(partyName, modName) {
+      const title = partyName || modName || 'New quote';
+      const meta = partyName && modName
+        ? modName
+        : (partyName || modName ? 'Tap menu to edit quote details' : 'Tap menu to set module and party');
+      if ($('quoteHeaderName')) $('quoteHeaderName').textContent = title;
+      if ($('quoteHeaderMeta')) $('quoteHeaderMeta').textContent = meta;
     }
 
     function recompute() {
@@ -2493,15 +2645,21 @@
 
       // ===== Mini summaries on collapsed step cards =====
       const mini = (n) => isFinite(n) ? `₹ ${round2(n)} / sheet` : '';
+      const tabMini = (n) => isFinite(n) ? `₹ ${round2(n)}/sh` : '—';
       $('mini-paper').textContent  = mini(cSheet);
       $('mini-extras').textContent = mini(exSheet);
       $('mini-corr').textContent   = mini(corrGrandSheet);
       $('mini-finish').textContent = mini(finishSheet);
+      if ($('tabPaper')) $('tabPaper').textContent = tabMini(cSheet);
+      if ($('tabExtras')) $('tabExtras').textContent = tabMini(exSheet);
+      if ($('tabCorr')) $('tabCorr').textContent = tabMini(corrGrandSheet);
+      if ($('tabFinish')) $('tabFinish').textContent = tabMini(finishSheet);
 
       // ===== Sticky compact summary content =====
       const sbName = $('sbName'), sbModule = $('sbModule');
       const partyName = ($('fullName') && $('fullName').value.trim()) || '';
       const modName   = ($('moduleName') && $('moduleName').value.trim()) || '';
+      updateQuoteHeader(partyName, modName);
       sbName.textContent = partyName || 'Untitled quote';
       sbModule.textContent = modName ? ` · ${modName}` : '';
       $('sbSheet').innerHTML = isFinite(gTotal) ? `₹ ${round2(gTotal)}` : '—';
@@ -2570,11 +2728,21 @@
       });
     });
 
-    // Collapsible step cards — click the header to expand/collapse
-    document.querySelectorAll('.collapsible .card-head').forEach(head => {
-      head.addEventListener('click', () => {
-        head.parentElement.classList.toggle('collapsed');
+    document.querySelectorAll('.step-chip').forEach(tab => {
+      tab.addEventListener('click', () => {
+        activateSection(tab.dataset.section);
+        $('jobPanel').classList.remove('open');
+        $('menuBtn').setAttribute('aria-expanded', 'false');
       });
+    });
+
+    $('menuBtn').setAttribute('aria-expanded', 'false');
+    $('menuBtn').addEventListener('click', () => {
+      const panel = $('jobPanel');
+      const open = !panel.classList.contains('open');
+      panel.classList.toggle('open', open);
+      $('menuBtn').setAttribute('aria-expanded', String(open));
+      if (open) $('historyPanel').style.display = 'none';
     });
 
     document.querySelectorAll('.process-tab').forEach(btn => {
@@ -2739,6 +2907,8 @@
       $('pasteFactor').value   = '500';
       $('boxesPerSheet').value = '1';
       activeProcessId = 'prt';
+      activeSectionId = 'paper-card';
+      activateSection(activeSectionId);
       updatePlyVisibility();
       recompute();
     }
@@ -2748,6 +2918,7 @@
       $('mainApp').style.display = '';
       stickybar.classList.add('show');
       stickybar.setAttribute('aria-hidden', 'false');
+      activateSection(activeSectionId);
       const username = currentUser.email.replace(EMAIL_DOMAIN, '');
       $('userTag').textContent = username;
       loadHistory();
@@ -2756,6 +2927,8 @@
     function showLogin() {
       $('mainApp').style.display = 'none';
       $('authOverlay').style.display = '';
+      $('jobPanel').classList.remove('open');
+      $('menuBtn').setAttribute('aria-expanded', 'false');
       stickybar.classList.remove('show');
       stickybar.setAttribute('aria-hidden', 'true');
       $('authUser').focus();
@@ -2956,7 +3129,11 @@
       const p = $('historyPanel');
       const visible = p.style.display !== 'none';
       p.style.display = visible ? 'none' : '';
-      if (!visible) loadHistory();
+      if (!visible) {
+        $('jobPanel').classList.remove('open');
+        $('menuBtn').setAttribute('aria-expanded', 'false');
+        loadHistory();
+      }
     }
 
     // ===== Wire up =====
@@ -2969,6 +3146,14 @@
     $('duplicateBtn').addEventListener('click', duplicateQuote);
     $('newBtn').addEventListener('click', newQuote);
     $('historyBtn').addEventListener('click', toggleHistory);
+    $('pricingBtn').addEventListener('click', () => {
+      const card = $('summary-card');
+      const open = !card.classList.contains('open');
+      card.classList.toggle('open', open);
+      $('jobPanel').classList.remove('open');
+      $('menuBtn').setAttribute('aria-expanded', 'false');
+      if (open) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
     $('historyCloseBtn').addEventListener('click', () => $('historyPanel').style.display = 'none');
     $('historySearch').addEventListener('input', renderHistory);
     $('historyModuleFilter').addEventListener('change', renderHistory);
