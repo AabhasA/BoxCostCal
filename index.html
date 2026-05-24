@@ -93,22 +93,17 @@
     }
 
     .stepper {
-      display: flex;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 6px;
       margin: 0 calc(clamp(10px, 2vw, 24px) * -1) 12px;
       padding: 8px clamp(10px, 2vw, 24px);
-      overflow-x: auto;
       background: rgba(244, 241, 234, 0.94);
       border-bottom: 1px solid var(--line);
       z-index: 25;
-      scrollbar-width: none;
-    }
-    .stepper::-webkit-scrollbar {
-      display: none;
     }
     .step-chip {
-      flex: 0 0 auto;
-      min-width: 120px;
+      min-width: 0;
       padding: 9px 10px;
       border: 1px solid var(--line);
       border-radius: 8px;
@@ -141,6 +136,11 @@
     }
     .step-chip.pending {
       opacity: 0.55;
+    }
+    @media (max-width: 560px) {
+      .stepper {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
     }
 
     .card {
@@ -267,8 +267,8 @@
     }
 
     .process-picker {
-      margin: 14px 0 18px;
-      padding: 14px;
+      margin: 12px 0 14px;
+      padding: 12px;
       border: 1px solid var(--line);
       border-radius: 8px;
       background: #ffffff;
@@ -304,39 +304,35 @@
     }
     .process-options {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 8px;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 6px 12px;
     }
     .process-option {
       position: relative;
-      display: grid;
-      grid-template-columns: 24px minmax(0, 1fr);
-      align-items: stretch;
+      display: flex;
+      align-items: center;
       gap: 8px;
-      min-height: 74px;
-      padding: 9px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: var(--panel);
+      min-height: 36px;
+      padding: 4px 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
       user-select: none;
     }
     .process-option:hover {
-      border-color: var(--line-strong);
-      background: #fff;
+      background: transparent;
     }
     .process-option.is-current {
-      border-color: var(--green);
-      background: #fff;
-      box-shadow: 0 0 0 2px rgba(23, 107, 91, 0.08);
+      box-shadow: none;
     }
     .process-option.is-off {
-      background: rgba(24, 32, 31, 0.025);
+      background: transparent;
     }
     .process-enable {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: center;
-      padding-top: 3px;
+      padding: 0;
       cursor: pointer;
     }
     .process-enable input {
@@ -347,8 +343,8 @@
     .option-check {
       position: relative;
       flex: 0 0 auto;
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
       border: 1.5px solid var(--line-strong);
       border-radius: 5px;
       background: #fff;
@@ -404,6 +400,7 @@
       text-overflow: ellipsis;
     }
     .option-state {
+      display: none;
       flex: 0 0 auto;
       padding: 3px 6px;
       border-radius: 999px;
@@ -428,6 +425,7 @@
       color: var(--muted);
     }
     .option-cost {
+      display: none;
       font-size: 13px;
       font-weight: 800;
       color: var(--green-dark);
@@ -438,6 +436,7 @@
       font-weight: 600;
     }
     .option-help {
+      display: none;
       font-size: 11px;
       color: var(--muted);
       white-space: nowrap;
@@ -515,15 +514,12 @@
       .picker-count { align-self: flex-start; }
       .process-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .process-option {
-        grid-template-columns: 22px minmax(0, 1fr);
-        gap: 7px;
-        min-height: 96px;
-        padding: 8px;
+        min-height: 38px;
+        padding: 3px 0;
       }
       .option-top {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
+        flex-direction: row;
+        align-items: center;
       }
       .option-state { font-size: 9.5px; }
       .option-cost { font-size: 12px; }
@@ -1396,14 +1392,14 @@
         <div class="process-picker-head">
           <div>
             <div class="process-picker-title">Processes needed</div>
-            <p class="process-picker-copy">Select only the work required for this job. Open each selected process below and fill just those fields.</p>
+            <p class="process-picker-copy">Tick only the processes needed. Their fields appear below.</p>
           </div>
-          <span class="picker-count" id="processCount">8 active</span>
+          <span class="picker-count" id="processCount">0 active</span>
         </div>
         <div class="process-options">
           <div class="process-option" data-process-option="prt">
             <label class="process-enable" aria-label="Use Printing">
-              <input type="checkbox" id="prtOn" checked>
+              <input type="checkbox" id="prtOn">
               <span class="option-check" aria-hidden="true"></span>
             </label>
             <button type="button" class="process-tab" data-process="prt">
@@ -1414,7 +1410,7 @@
           </div>
           <div class="process-option" data-process-option="uv">
             <label class="process-enable" aria-label="Use UV Hybrid">
-              <input type="checkbox" id="uvOn" checked>
+              <input type="checkbox" id="uvOn">
               <span class="option-check" aria-hidden="true"></span>
             </label>
             <button type="button" class="process-tab" data-process="uv">
@@ -1425,7 +1421,7 @@
           </div>
           <div class="process-option" data-process-option="uvp">
             <label class="process-enable" aria-label="Use UV Plate">
-              <input type="checkbox" id="uvpOn" checked>
+              <input type="checkbox" id="uvpOn">
               <span class="option-check" aria-hidden="true"></span>
             </label>
             <button type="button" class="process-tab" data-process="uvp">
@@ -1436,7 +1432,7 @@
           </div>
           <div class="process-option" data-process-option="cryst">
             <label class="process-enable" aria-label="Use Matt Crystal Screen">
-              <input type="checkbox" id="crystOn" checked>
+              <input type="checkbox" id="crystOn">
               <span class="option-check" aria-hidden="true"></span>
             </label>
             <button type="button" class="process-tab" data-process="cryst">
@@ -1447,7 +1443,7 @@
           </div>
           <div class="process-option" data-process-option="leaf">
             <label class="process-enable" aria-label="Use Leaf Foil">
-              <input type="checkbox" id="leafOn" checked>
+              <input type="checkbox" id="leafOn">
               <span class="option-check" aria-hidden="true"></span>
             </label>
             <button type="button" class="process-tab" data-process="leaf">
@@ -1458,7 +1454,7 @@
           </div>
           <div class="process-option" data-process-option="lb">
             <label class="process-enable" aria-label="Use Leaf Block">
-              <input type="checkbox" id="lbOn" checked>
+              <input type="checkbox" id="lbOn">
               <span class="option-check" aria-hidden="true"></span>
             </label>
             <button type="button" class="process-tab" data-process="lb">
@@ -1469,7 +1465,7 @@
           </div>
           <div class="process-option" data-process-option="design">
             <label class="process-enable" aria-label="Use Design">
-              <input type="checkbox" id="designOn" checked>
+              <input type="checkbox" id="designOn">
               <span class="option-check" aria-hidden="true"></span>
             </label>
             <button type="button" class="process-tab" data-process="design">
@@ -1480,7 +1476,7 @@
           </div>
           <div class="process-option" data-process-option="freight">
             <label class="process-enable" aria-label="Use Freight">
-              <input type="checkbox" id="freightOn" checked>
+              <input type="checkbox" id="freightOn">
               <span class="option-check" aria-hidden="true"></span>
             </label>
             <button type="button" class="process-tab" data-process="freight">
@@ -1494,7 +1490,7 @@
 
       <div class="process-empty" id="processEmpty">No extra process selected. Choose one above if this job needs printing, UV, foil, design, or freight.</div>
 
-      <div class="proc extra-proc active-detail" id="proc-prt">
+      <div class="proc extra-proc" id="proc-prt">
         <div class="proc-head">
           <span class="proc-name">1. Printing</span>
           <span class="proc-formula">Enter the job lot cost. The app divides it across effective sheets.</span>
@@ -2081,7 +2077,6 @@
       { key: 'design', checkbox: 'designOn', panel: 'proc-design', state: 'designState', cost: 'designTileCost' },
       { key: 'freight', checkbox: 'freightOn', panel: 'proc-fc', state: 'freightState', cost: 'freightTileCost' },
     ];
-    let activeProcessId = 'prt';
     let activeSectionId = 'paper-card';
 
     function round2(n) {
@@ -2119,17 +2114,10 @@
     }
 
     function syncProcessPanels() {
-      const activeDefs = PROCESS_DEFS.filter(def => {
-        const cb = $(def.checkbox);
-        return cb && cb.checked;
-      });
-      if (!activeDefs.some(def => def.key === activeProcessId)) {
-        activeProcessId = activeDefs.length ? activeDefs[0].key : '';
-      }
       PROCESS_DEFS.forEach(def => {
         const on = !!($(def.checkbox) && $(def.checkbox).checked);
         const panel = $(def.panel);
-        if (panel) panel.classList.toggle('active-detail', on && def.key === activeProcessId);
+        if (panel) panel.classList.toggle('active-detail', on);
       });
     }
 
@@ -2144,7 +2132,7 @@
         tile.classList.toggle('is-off', !on);
         tile.classList.toggle('is-ready', on && ready);
         tile.classList.toggle('needs-input', on && !ready);
-        tile.classList.toggle('is-current', on && key === activeProcessId);
+        tile.classList.remove('is-current');
       }
       if (stateEl) stateEl.textContent = state;
       if (costEl) costEl.textContent = on ? processCostLabel(perSheet, total) : '—';
@@ -2422,8 +2410,7 @@
 
       if ($('processCount')) {
         const activeText = activeProcessCount === 1 ? '1 active' : `${activeProcessCount} active`;
-        const readyText = readyProcessCount === 1 ? '1 ready' : `${readyProcessCount} ready`;
-        $('processCount').textContent = `${activeText} · ${readyText}`;
+        $('processCount').textContent = activeProcessCount ? activeText : '0 active';
       }
 
       // Grand totals across all extras
@@ -2750,11 +2737,12 @@
         const def = processDef(btn.dataset.process);
         if (!def) return;
         const checkbox = $(def.checkbox);
-        if (checkbox && !checkbox.checked) checkbox.checked = true;
-        activeProcessId = def.key;
+        if (checkbox) checkbox.checked = !checkbox.checked;
         recompute();
         const panel = $(def.panel);
-        if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        if (checkbox && checkbox.checked && panel) {
+          panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
       });
     });
 
@@ -2897,7 +2885,7 @@
       INPUT_IDS.forEach(id => {
         const el = $(id);
         if (!el) return;
-        if (el.type === 'checkbox') el.checked = true;   // default ON
+        if (el.type === 'checkbox') el.checked = false;
         else el.value = '';
       });
       $('corrType').value      = 'standard';
@@ -2906,7 +2894,6 @@
       $('corrTax').value       = '12';
       $('pasteFactor').value   = '500';
       $('boxesPerSheet').value = '1';
-      activeProcessId = 'prt';
       activeSectionId = 'paper-card';
       activateSection(activeSectionId);
       updatePlyVisibility();
@@ -3159,10 +3146,7 @@
     $('historyModuleFilter').addEventListener('change', renderHistory);
     // Top process toggles decide which process tabs are used.
     PROCESS_DEFS.forEach(def => {
-      $(def.checkbox).addEventListener('change', () => {
-        if ($(def.checkbox).checked) activeProcessId = def.key;
-        recompute();
-      });
+      $(def.checkbox).addEventListener('change', recompute);
     });
     $('historyList').addEventListener('click', e => {
       const btn = e.target.closest('button');
