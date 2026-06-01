@@ -892,6 +892,47 @@
       outline: none;
     }
     .auth-row input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(23,107,91,0.12); }
+    .password-field {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .password-field input {
+      width: 100%;
+      padding-right: 44px;
+    }
+    .password-toggle {
+      position: absolute;
+      right: 5px;
+      width: 34px;
+      height: 34px;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .password-toggle:hover,
+    .password-toggle:focus-visible {
+      color: var(--green-dark);
+      background: rgba(23, 107, 91, 0.08);
+      outline: none;
+    }
+    .password-toggle svg {
+      width: 19px;
+      height: 19px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .password-toggle .eye-off-icon { display: none; }
+    .password-toggle.is-visible .eye-icon { display: none; }
+    .password-toggle.is-visible .eye-off-icon { display: block; }
     .auth-btn {
       width: 100%; padding: 11px 16px;
       border: 1px solid var(--green); background: var(--green);
@@ -1091,7 +1132,21 @@
       </div>
       <div class="auth-row">
         <label for="authPass">Password</label>
-        <input id="authPass" type="password" autocomplete="current-password" placeholder="••••••••">
+        <div class="password-field">
+          <input id="authPass" type="password" autocomplete="current-password" placeholder="••••••••">
+          <button id="authPassToggle" class="password-toggle" type="button" aria-label="Show password" title="Show password">
+            <svg class="eye-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <svg class="eye-off-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M3 3l18 18"></path>
+              <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"></path>
+              <path d="M9.9 4.2A10.2 10.2 0 0 1 12 4c6.5 0 10 8 10 8a18.5 18.5 0 0 1-3.2 4.4"></path>
+              <path d="M6.4 6.4C3.6 8.3 2 12 2 12s3.5 8 10 8a9.6 9.6 0 0 0 4.2-.9"></path>
+            </svg>
+          </button>
+        </div>
       </div>
       <button id="authBtn" class="auth-btn">Sign in</button>
       <div class="auth-err" id="authErr"></div>
@@ -3126,6 +3181,16 @@
 
     // ===== Wire up =====
     $('authBtn').addEventListener('click', signIn);
+    $('authPassToggle').addEventListener('click', () => {
+      const pass = $('authPass');
+      const btn = $('authPassToggle');
+      const isVisible = pass.type === 'text';
+      pass.type = isVisible ? 'password' : 'text';
+      btn.classList.toggle('is-visible', !isVisible);
+      btn.setAttribute('aria-label', isVisible ? 'Show password' : 'Hide password');
+      btn.setAttribute('title', isVisible ? 'Show password' : 'Hide password');
+      pass.focus();
+    });
     $('authPass').addEventListener('keydown', e => { if (e.key === 'Enter') signIn(); });
     $('authUser').addEventListener('keydown', e => { if (e.key === 'Enter') $('authPass').focus(); });
     $('logoutBtn').addEventListener('click', signOut);
