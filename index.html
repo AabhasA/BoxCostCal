@@ -2937,6 +2937,10 @@
       );
     }
 
+    function isMissingOwnerEmailColumn(err) {
+      return err && /owner_email/i.test(err.message || '') && /column|schema cache/i.test(err.message || '');
+    }
+
     function clearAllInputs() {
       INPUT_IDS.forEach(id => {
         const el = $(id);
@@ -3029,19 +3033,35 @@
       $('saveBtn').disabled = true;
       try {
         let result, err;
+        const payload = { module_name: moduleName, name: fullName, data, owner_email: currentUser.email };
         if (currentQuoteId) {
           ({ data: result, error: err } = await sb
             .from('boxcostcal_quotes')
-            .update({ module_name: moduleName, name: fullName, data })
+            .update(payload)
             .eq('id', currentQuoteId)
             .select()
             .single());
+          if (isMissingOwnerEmailColumn(err)) {
+            ({ data: result, error: err } = await sb
+              .from('boxcostcal_quotes')
+              .update({ module_name: moduleName, name: fullName, data })
+              .eq('id', currentQuoteId)
+              .select()
+              .single());
+          }
         } else {
           ({ data: result, error: err } = await sb
             .from('boxcostcal_quotes')
-            .insert({ user_id: currentUser.id, module_name: moduleName, name: fullName, data })
+            .insert({ user_id: currentUser.id, ...payload })
             .select()
             .single());
+          if (isMissingOwnerEmailColumn(err)) {
+            ({ data: result, error: err } = await sb
+              .from('boxcostcal_quotes')
+              .insert({ user_id: currentUser.id, module_name: moduleName, name: fullName, data })
+              .select()
+              .single());
+          }
         }
         if (err) { setStatus(`Save failed: ${err.message}`, true); return; }
         currentQuoteId = result.id;
